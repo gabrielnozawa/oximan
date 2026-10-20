@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>OXI-MAN — A Jornada do Oxigênio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   MISSÃO OXIGÊNIO — estilo geral (arcade neon)
+   ============================================================ */
+:root{
+  --bg-deep:#050818;
+  --bg-panel:#0c1230;
+  --bg-panel2:#111a3d;
+  --cyan:#4fe3ff;
+  --blue:#3b6bff;
+  --purple:#9b5cff;
+  --white:#eef2ff;
+  --dim:#8892c9;
+  --good:#3ee08a;
+  --bad:#ff5d7a;
+  --gold:#ffcb4d;
+  --font-display:'Orbitron', 'Segoe UI', sans-serif;
+  --font-body:'Rubik', 'Segoe UI', Tahoma, sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{
+  margin:0; padding:0; width:100%; height:100%;
+  background:var(--bg-deep);
+  color:var(--white);
+  font-family:var(--font-body);
+  overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+#app{
+  position:relative;
+  width:100%;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(79,227,255,.10), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(155,92,255,.14), transparent 50%),
+    var(--bg-deep);
+  padding:14px;
+}
+h1,h2,h3{font-family:var(--font-display); margin:0 0 6px 0; letter-spacing:.5px;}
+p{line-height:1.5; color:var(--dim);}
+button{font-family:var(--font-body); cursor:pointer;}
+.screen{width:100%; max-width:640px; display:flex; flex-direction:column; gap:14px; animation:fadein .35s ease;}
+@keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+/* --- buttons --- */
+.btn{
+  border:none; border-radius:14px; padding:14px 18px;
+  font-size:16px; font-weight:700; color:var(--bg-deep);
+  background:linear-gradient(135deg,var(--cyan),var(--blue));
+  box-shadow:0 4px 0 #1b3fae, 0 6px 18px rgba(79,227,255,.25);
+  transition:transform .08s ease;
+  width:100%;
+}
+.btn:active{transform:translateY(3px); box-shadow:0 1px 0 #1b3fae;}
+.btn.secondary{
+  background:var(--bg-panel2); color:var(--white);
+  box-shadow:0 4px 0 #060a1e, inset 0 0 0 1px rgba(79,227,255,.35);
+}
+.btn.secondary:active{transform:translateY(3px); box-shadow:0 1px 0 #060a1e;}
+.btn.danger{background:linear-gradient(135deg,var(--bad),#c23a58); box-shadow:0 4px 0 #7a1830;}
+.btn.small{padding:9px 12px; font-size:13px; width:auto;}
+.btn:disabled{opacity:.4; cursor:not-allowed;}
+
+/* --- menu --- */
+.title-block{text-align:center; padding:22px 10px 6px; position:relative;}
+.lungs-bg{
+  position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+  width:180px; height:180px; opacity:.10; color:var(--purple); z-index:0;
+  pointer-events:none;
+}
+.lungs-bg svg{width:100%; height:100%;}
+.o2-orb{
+  position:absolute; z-index:1; font-family:var(--font-display); font-weight:800; font-size:10px;
+  color:#eafcff; background:radial-gradient(circle at 32% 28%, #bff4ff, #2f9fe0 70%, #14608f);
+  width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 14px rgba(79,227,255,.7), inset 0 0 0 1px rgba(255,255,255,.4);
+  animation:float 3.4s ease-in-out infinite;
+}
+.o2-orb.orb1{top:6px; left:6%; animation-delay:.2s;}
+.o2-orb.orb2{top:16px; right:8%; animation-delay:1s; width:24px; height:24px; font-size:8px;}
+.o2-orb.orb3{top:58px; left:16%; animation-delay:1.8s; width:20px; height:20px; font-size:7px;}
+.title-block .o2-logo{
+  position:relative; z-index:1;
+  display:inline-block; margin-bottom:2px;
+  filter:drop-shadow(0 0 18px rgba(79,227,255,.6));
+  animation:float 3s ease-in-out infinite;
+}
+.title-block .o2-logo svg{width:118px; height:82px;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.title-block h1{
+  position:relative; z-index:1;
+  font-size:44px; font-weight:900; letter-spacing:2px;
+  color:#5ecbff;
+  -webkit-text-stroke:1.5px #0a2a52;
+  text-shadow:
+    0 3px 0 #0a2a52,
+    0 6px 0 #071a38,
+    0 9px 14px rgba(0,0,0,.55),
+    0 0 22px rgba(79,227,255,.85),
+    0 0 42px rgba(155,92,255,.55);
+  margin-bottom:2px;
+}
+.title-block .slogan{
+  position:relative; z-index:1;
+  color:var(--white); font-style:normal; font-size:12px; font-weight:700;
+  letter-spacing:3px; text-transform:uppercase; opacity:.85;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.title-block .slogan .line{width:26px; height:1px; background:linear-gradient(90deg,transparent,var(--cyan));}
+.title-block .slogan .line:last-child{background:linear-gradient(90deg,var(--cyan),transparent);}
+.menu-list{display:flex; flex-direction:column; gap:10px;}
+.card{
+  background:var(--bg-panel); border-radius:16px; padding:16px;
+  box-shadow:inset 0 0 0 1px rgba(79,227,255,.12);
+}
+.card.glow{box-shadow:inset 0 0 0 1px rgba(79,227,255,.3), 0 0 22px rgba(79,227,255,.08);}
+
+/* --- HUD --- */
+.hud{
+  display:flex; justify-content:space-between; align-items:center;
+  background:var(--bg-panel); border-radius:14px; padding:8px 14px;
+  font-size:12.5px; font-weight:700; gap:6px; flex-wrap:wrap;
+}
+.hud .lives{color:var(--bad); letter-spacing:1px;}
+.hud .score{color:var(--gold);}
+.hud .phase-tag{color:var(--cyan); display:flex; align-items:center; gap:5px;}
+.hud .fruitcount{color:var(--good);}
+.power-bar-wrap{width:100%; height:7px; background:var(--bg-panel2); border-radius:6px; overflow:hidden;}
+.power-bar{height:100%; background:linear-gradient(90deg,var(--gold),#ff8a3d); width:0%; transition:width .1s linear;}
+
+/* --- maze --- */
+.maze-wrap{
+  position:relative; width:100%; display:flex; justify-content:center;
+  background:var(--bg-panel); border-radius:16px; padding:8px;
+  box-shadow:inset 0 0 0 1px rgba(79,227,255,.15);
+  outline:none;
+}
+canvas#mazeCanvas{width:100%; max-width:480px; height:auto; border-radius:10px; display:block; touch-action:none; background:#050818;}
+.dpad{
+  display:grid; grid-template-columns:56px 56px 56px; grid-template-rows:56px 56px 56px;
+  gap:4px; justify-content:center; margin:10px auto 0;
+}
+.dpad button{
+  border:none; border-radius:12px; background:var(--bg-panel2); color:var(--cyan);
+  font-size:20px; box-shadow:inset 0 0 0 1px rgba(79,227,255,.3);
+}
+.dpad button:active{background:var(--blue); color:#fff;}
+.dpad .up{grid-column:2; grid-row:1;}
+.dpad .left{grid-column:1; grid-row:2;}
+.dpad .center{grid-column:2; grid-row:2; visibility:hidden;}
+.dpad .right{grid-column:3; grid-row:2;}
+.dpad .down{grid-column:2; grid-row:3;}
+.hint-desktop{text-align:center; color:var(--dim); font-size:12px;}
+
+/* --- phase intro / dialogs --- */
+.intro-card{
+  background:var(--bg-panel); border-radius:18px; padding:22px; text-align:center;
+  box-shadow:0 0 30px rgba(155,92,255,.15), inset 0 0 0 1px rgba(155,92,255,.25);
+}
+.icon-wrap{width:32px; height:32px; margin:0 auto;}
+.icon-wrap svg{width:100%; height:100%; display:block;}
+.intro-card .icon-wrap{width:60px; height:60px; filter:drop-shadow(0 0 10px currentColor);}
+.fact-box{
+  margin-top:10px; background:var(--bg-panel2); border-radius:10px; padding:10px 12px;
+  font-size:13px; color:var(--gold); text-align:left;
+}
+.confetti-wrap{position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0;}
+.confetti-piece{
+  position:absolute; top:-14px; border-radius:2px; opacity:.9;
+  animation-name:confettiFall; animation-timing-function:ease-in; animation-iteration-count:1; animation-fill-mode:forwards;
+}
+@keyframes confettiFall{
+  0%{ transform:translateY(0) rotate(0deg); opacity:1; }
+  100%{ transform:translateY(340px) rotate(540deg); opacity:0; }
+}
+.difficulty-row{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:6px;}
+.chip{background:var(--bg-panel2); border-radius:20px; padding:5px 12px; font-size:11px; font-weight:700; color:var(--dim);}
+.chip b{color:var(--white);}
+.ghost-preview{display:flex; gap:10px; justify-content:center; margin-top:12px; flex-wrap:wrap;}
+.ghost-chip{display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11px; color:var(--dim); width:70px;}
+.ghost-chip .gdot{width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:17px;}
+
+/* --- quiz / battle --- */
+.quiz-card{background:var(--bg-panel); border-radius:18px; padding:20px;}
+.quiz-cat{font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--purple); font-weight:700;}
+.quiz-q{font-size:17px; margin:8px 0 16px; font-weight:700;}
+.opt-list{display:flex; flex-direction:column; gap:10px;}
+.opt{
+  text-align:left; background:var(--bg-panel2); border:2px solid transparent; border-radius:12px;
+  padding:12px 14px; color:var(--white); font-size:15px;
+}
+.opt .letter{display:inline-block; width:22px; height:22px; border-radius:6px; background:var(--blue);
+  color:#fff; text-align:center; line-height:22px; font-size:12px; margin-right:8px; font-weight:800;}
+.opt.correct{border-color:var(--good); background:rgba(62,224,138,.14);}
+.opt.wrong{border-color:var(--bad); background:rgba(255,93,122,.14);}
+.opt:disabled{opacity:.55;}
+.feedback{margin-top:14px; padding:12px 14px; border-radius:12px; font-size:14px;}
+.feedback.correct{background:rgba(62,224,138,.12); color:var(--good); box-shadow:inset 0 0 0 1px var(--good);}
+.feedback.wrong{background:rgba(255,93,122,.12); color:var(--bad); box-shadow:inset 0 0 0 1px var(--bad);}
+.battle-banner{display:flex; align-items:center; gap:10px; margin-bottom:10px; background:var(--bg-panel2); border-radius:12px; padding:8px 10px;}
+.battle-banner .gicon{width:38px; height:38px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:19px;}
+.battle-banner .txt{font-size:12px; color:var(--dim);}
+.battle-banner .txt b{color:var(--bad);}
+.vs-row{display:flex; justify-content:space-around; align-items:center; margin:4px 0 14px;}
+.player-emoji{font-size:38px; filter:drop-shadow(0 0 10px rgba(79,227,255,.6));}
+.player-emoji.hit{animation:shakeX .35s;}
+.player-emoji.attack{animation:pop .3s ease;}
+.boss-emoji{font-size:34px; display:inline-flex; align-items:center; justify-content:center; width:60px; height:60px; border-radius:50%;}
+.boss-emoji.shake{animation:shakeX .35s;}
+@keyframes shakeX{0%,100%{transform:translateX(0);}25%{transform:translateX(-7px);}75%{transform:translateX(7px);}}
+.hpbar-wrap{background:var(--bg-panel2); border-radius:10px; height:12px; overflow:hidden; margin-top:6px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.08); width:90px;}
+.hpbar{height:100%; background:linear-gradient(90deg,var(--bad),#ff8a3d); transition:width .35s ease;}
+.hpbar.player{background:linear-gradient(90deg,var(--good),var(--cyan));}
+
+/* --- results --- */
+.result-hero{text-align:center; padding:10px;}
+.grade{font-size:40px; font-weight:900; margin:6px 0;}
+.stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.stat-box{background:var(--bg-panel2); border-radius:12px; padding:12px; text-align:center;}
+.stat-box .val{font-size:20px; font-weight:800; color:var(--cyan);}
+.stat-box .lbl{font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:.5px;}
+
+/* --- learn / achievements grids --- */
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.organ-card, .ach-card, .disease-card{background:var(--bg-panel); border-radius:14px; padding:12px; text-align:center; box-shadow:inset 0 0 0 1px rgba(79,227,255,.12);}
+.organ-card .e, .ach-card .e{font-size:30px;}
+.organ-card .n, .ach-card .n, .disease-card .n{font-size:13px; font-weight:700; margin-top:4px;}
+.ach-card.locked{opacity:.35;}
+.ach-card .d{font-size:11px; color:var(--dim); margin-top:2px;}
+.disease-card .gicon{width:36px; height:36px; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center; font-size:18px;}
+.section-label{font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--purple); font-weight:800; margin-top:6px;}
+.name-input{
+  width:100%; margin-top:14px; padding:13px 14px; border-radius:12px; border:2px solid rgba(79,227,255,.3);
+  background:var(--bg-panel2); color:var(--white); font-size:16px; font-family:var(--font-body); text-align:center;
+  outline:none;
+}
+.name-input:focus{border-color:var(--cyan);}
+.name-error{min-height:18px; color:var(--bad); font-size:12.5px; font-weight:700; margin-top:8px;}
+.rank-row{
+  display:flex; align-items:center; gap:10px; padding:9px 4px;
+  border-bottom:1px solid rgba(79,227,255,.08);
+}
+.rank-row:last-child{border-bottom:none;}
+.rank-pos{width:28px; font-weight:800; color:var(--gold); font-size:13px; flex-shrink:0;}
+.rank-name{flex:1; font-size:14px; color:var(--white);}
+.rank-name b{color:var(--cyan);}
+.rank-val{font-weight:800; color:var(--cyan); font-size:14px;}
+.username-tag{text-align:center; font-size:12px; color:var(--dim); margin-top:-4px;}
+
+/* --- topbar --- */
+.topbar{display:flex; align-items:center; justify-content:space-between; width:100%; max-width:640px; margin-bottom:2px;}
+.topbar .back{background:none; border:none; color:var(--cyan); font-weight:700; font-size:14px;}
+.topbar .title{font-size:14px; color:var(--dim); font-weight:700;}
+
+/* --- toast --- */
+#toast{
+  position:fixed; top:14px; left:50%; transform:translateX(-50%) translateY(-140%);
+  background:linear-gradient(135deg,var(--gold),#ff8a3d); color:#3a1c00; font-weight:800;
+  padding:10px 18px; border-radius:14px; z-index:999; font-size:13px; box-shadow:0 6px 20px rgba(0,0,0,.4);
+  transition:transform .4s ease; white-space:nowrap;
+}
+#toast.show{transform:translateX(-50%) translateY(0);}
+
+/* --- overlay (pause / battle) --- */
+.overlay{
+  position:fixed; inset:0; background:rgba(2,4,16,.86); z-index:900;
+  display:flex; align-items:center; justify-content:center; padding:16px; overflow-y:auto;
+}
+.overlay .card{width:100%; max-width:360px; text-align:center;}
+.overlay .quiz-card{width:100%; max-width:380px; text-align:left;}
+
+@media (min-width:700px){ .hint-desktop{display:block;} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   MISSÃO OXIGÊNIO — motor do jogo estilo Pac-Man
+   ============================================================ */
+const SAVE_KEY = "missaoOxigenioSave_v2";
+const DEFAULT_SAVE = {
+  unlockedPhase: 0,
+  bestScore: 0,
+  achievements: [],
+  correctCount: 0,
+  wrongCount: 0,
+  ghostsEatenTotal: 0,
+  soundOn: true,
+  musicOn: true,
+  secretFound: false,
+  username: null,
+  leaderboard: []
+};
+function loadSave(){
+  try{ const raw = localStorage.getItem(SAVE_KEY); if(!raw) return {...DEFAULT_SAVE}; return {...DEFAULT_SAVE, ...JSON.parse(raw)}; }
+  catch(e){ return {...DEFAULT_SAVE}; }
+}
+function persistSave(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
+
+/* ---------------- audio (WebAudio synth, sem arquivos externos) ---------------- */
+let actx=null;
+function ensureAudio(){ if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } }
+let wakaToggle=false;
+function playSound(name){
+  if(!save.soundOn) return;
+  ensureAudio(); if(!actx) return;
+  const now=actx.currentTime;
+  const presets = {
+    correct:[[660,.09],[880,.12]], wrong:[[220,.18]],
+    collectA:[[880,.05]], collectB:[[1180,.05]],
+    pellet:[[500,.05],[700,.05],[950,.08]], eatghost:[[300,.05],[700,.05],[1100,.08]],
+    damage:[[180,.15]], victory:[[523,.1],[659,.1],[784,.16]],
+    levelclear:[[523,.09],[659,.09],[784,.09],[1046,.22]],
+    gameover:[[392,.16],[330,.16],[262,.28]],
+    achievement:[[784,.08],[988,.08],[1318,.18]], click:[[400,.04]], warn:[[880,.06],[440,.06]]
+  };
+  const seq = presets[name]||presets.click; let t=now;
+  seq.forEach(([freq,dur])=>{
+    const osc=actx.createOscillator(), gain=actx.createGain();
+    osc.type="square"; osc.frequency.setValueAtTime(freq,t);
+    gain.gain.setValueAtTime(.06,t); gain.gain.exponentialRampToValueAtTime(.001,t+dur);
+    osc.connect(gain); gain.connect(actx.destination); osc.start(t); osc.stop(t+dur); t+=dur*.8;
+  });
+}
+function playCollectSound(){
+  wakaToggle=!wakaToggle;
+  playSound(wakaToggle?"collectA":"collectB");
+}
+
+/* ---------------- música de fundo (estilo arcade, sintetizada, sem arquivos externos) ---------------- */
+let musicTimerId=null, musicNextTime=0, musicStep=0;
+let musicOsc=null, musicGain=null, musicBassOsc=null, musicBassGain=null;
+const MUSIC_STEP_DUR = 60/172/2; // colcheias a 172 bpm
+const MUSIC_MELODY = [659,784,880,784,659,587,659,0, 784,880,988,880,784,659,784,0,
+                       880,988,1046,988,880,784,880,0, 987,880,784,659,587,494,587,0];
+const MUSIC_BASS =   [220,0,262,0,220,0,196,0, 220,0,262,0,294,0,262,0,
+                       220,0,262,0,220,0,196,0, 220,0,196,0,175,0,196,0];
+function ensureMusicNodes(){
+  // cria os osciladores UMA única vez e os reaproveita (evita criar/destruir dezenas de nós de áudio por segundo,
+  // o que gera pausas de coleta de lixo e engasgos no jogo)
+  if(musicOsc) return;
+  musicOsc=actx.createOscillator(); musicGain=actx.createGain();
+  musicOsc.type="square"; musicGain.gain.value=0;
+  musicOsc.connect(musicGain); musicGain.connect(actx.destination); musicOsc.start();
+  musicBassOsc=actx.createOscillator(); musicBassGain=actx.createGain();
+  musicBassOsc.type="triangle"; musicBassGain.gain.value=0;
+  musicBassOsc.connect(musicBassGain); musicBassGain.connect(actx.destination); musicBassOsc.start();
+}
+function scheduleMusic(){
+  if(!save.musicOn || !actx){ musicTimerId=null; return; }
+  while(musicNextTime < actx.currentTime + 0.12){
+    const t=musicNextTime;
+    const mf=MUSIC_MELODY[musicStep];
+    musicGain.gain.cancelScheduledValues(t);
+    if(mf){
+      musicOsc.frequency.setValueAtTime(mf,t);
+      musicGain.gain.setValueAtTime(.028,t);
+      musicGain.gain.exponentialRampToValueAtTime(.0001,t+MUSIC_STEP_DUR*.85);
+    } else {
+      musicGain.gain.setValueAtTime(.0001,t);
+    }
+    const bf=MUSIC_BASS[musicStep];
+    musicBassGain.gain.cancelScheduledValues(t);
+    if(bf){
+      musicBassOsc.frequency.setValueAtTime(bf,t);
+      musicBassGain.gain.setValueAtTime(.045,t);
+      musicBassGain.gain.exponentialRampToValueAtTime(.0001,t+MUSIC_STEP_DUR*.92);
+    } else {
+      musicBassGain.gain.setValueAtTime(.0001,t);
+    }
+    musicNextTime += MUSIC_STEP_DUR;
+    musicStep = (musicStep+1) % MUSIC_MELODY.length;
+  }
+  musicTimerId = setTimeout(scheduleMusic, 45);
+}
+function startMusic(){
+  if(!save.musicOn) return;
+  ensureAudio(); if(!actx) return;
+  stopMusic();
+  ensureMusicNodes();
+  musicStep=0; musicNextTime=actx.currentTime+0.05;
+  scheduleMusic();
+}
+function stopMusic(){
+  if(musicTimerId){ clearTimeout(musicTimerId); musicTimerId=null; }
+  if(actx && musicGain){
+    musicGain.gain.cancelScheduledValues(actx.currentTime);
+    musicGain.gain.setValueAtTime(0, actx.currentTime);
+  }
+  if(actx && musicBassGain){
+    musicBassGain.gain.cancelScheduledValues(actx.currentTime);
+    musicBassGain.gain.setValueAtTime(0, actx.currentTime);
+  }
+}
+
+
+/* ---------------- banco de perguntas ---------------- */
+const QUESTIONS = [
+  {pergunta:"Qual é a principal função da traqueia?", alternativas:["Produzir sangue","Conduzir o ar","Fazer a digestão","Bombear sangue"], resposta:1, explicacao:"A traqueia conduz o ar da laringe até os brônquios, mantendo-se aberta graças a anéis cartilaginosos.", categoria:"Traqueia", dificuldade:"fácil"},
+  {pergunta:"Qual é a função principal dos alvéolos?", alternativas:["Produzir saliva","Realizar trocas gasosas","Bombear sangue","Produzir alimentos"], resposta:1, explicacao:"Os alvéolos são pequenas bolsas onde ocorre a troca de gases entre o ar e o sangue.", categoria:"Alvéolos", dificuldade:"fácil"},
+  {pergunta:"Por onde o ar entra inicialmente no corpo?", alternativas:["Esôfago","Nariz ou boca","Estômago","Intestino"], resposta:1, explicacao:"O ar entra pelo nariz ou pela boca, sendo filtrado, aquecido e umidificado no caminho.", categoria:"Anatomia", dificuldade:"fácil"},
+  {pergunta:"O que a faringe faz no sistema respiratório?", alternativas:["Produz hormônios","É um canal comum ao ar e ao alimento","Filtra o sangue","Armazena oxigênio"], resposta:1, explicacao:"A faringe é compartilhada pelos sistemas respiratório e digestório, conduzindo ar e alimento.", categoria:"Funções", dificuldade:"médio"},
+  {pergunta:"Qual estrutura contém as cordas vocais?", alternativas:["Laringe","Traqueia","Brônquios","Diafragma"], resposta:0, explicacao:"A laringe abriga as cordas vocais e também protege as vias aéreas durante a deglutição.", categoria:"Anatomia", dificuldade:"fácil"},
+  {pergunta:"Os brônquios se dividem em estruturas cada vez menores chamadas:", alternativas:["Alvéolos","Bronquíolos","Capilares","Cílios"], resposta:1, explicacao:"Os brônquios se ramificam em bronquíolos, tubos cada vez mais finos que levam o ar aos alvéolos.", categoria:"Anatomia", dificuldade:"fácil"},
+  {pergunta:"Qual músculo é o principal responsável pelos movimentos respiratórios?", alternativas:["Bíceps","Diafragma","Coração","Estômago"], resposta:1, explicacao:"O diafragma se contrai e relaxa, alterando o volume da caixa torácica e permitindo inspiração e expiração.", categoria:"Respiração", dificuldade:"fácil"},
+  {pergunta:"Durante a inspiração, o diafragma:", alternativas:["Relaxa e sobe","Contrai e desce","Para de funcionar","Se rompe"], resposta:1, explicacao:"Ao contrair e descer, o diafragma aumenta o espaço no tórax, permitindo a entrada de ar.", categoria:"Respiração", dificuldade:"médio"},
+  {pergunta:"Nos alvéolos, o oxigênio passa para o sangue através:", alternativas:["Dos ossos","Da parede alveolar e dos capilares","Do estômago","Dos músculos"], resposta:1, explicacao:"O O₂ atravessa a fina parede alveolar e entra nos capilares sanguíneos, ligando-se à hemoglobina.", categoria:"Trocas gasosas", dificuldade:"médio"},
+  {pergunta:"O gás carbônico (CO₂) produzido pelo corpo é eliminado:", alternativas:["Pelo suor","Dos capilares para os alvéolos e depois expirado","Pela urina","Pelos alvéolos para o sangue"], resposta:1, explicacao:"O CO₂ sai do sangue para os alvéolos através das paredes capilares e é eliminado na expiração.", categoria:"Trocas gasosas", dificuldade:"médio"},
+  {pergunta:"Por que os alvéolos são tão eficientes nas trocas gasosas?", alternativas:["Porque são grandes e poucos","Porque são muitos e aumentam a área de contato","Porque produzem muco","Porque têm ossos"], resposta:1, explicacao:"Os pulmões têm milhões de alvéolos, o que aumenta muito a área disponível para as trocas gasosas.", categoria:"Trocas gasosas", dificuldade:"médio"},
+  {pergunta:"Qual destas estruturas pertence ao sistema respiratório?", alternativas:["Estômago","Intestino","Traqueia","Fígado"], resposta:2, explicacao:"A traqueia conduz ar; estômago, intestino e fígado fazem parte do sistema digestório.", categoria:"Sistema digestório x respiratório", dificuldade:"fácil"},
+  {pergunta:"Qual destas estruturas pertence ao sistema digestório, não ao respiratório?", alternativas:["Brônquios","Alvéolos","Esôfago","Pulmão"], resposta:2, explicacao:"O esôfago conduz alimento até o estômago; não participa da respiração.", categoria:"Sistema digestório x respiratório", dificuldade:"fácil"},
+  {pergunta:"A faringe é uma estrutura compartilhada entre quais sistemas?", alternativas:["Respiratório e circulatório","Respiratório e digestório","Digestório e nervoso","Circulatório e nervoso"], resposta:1, explicacao:"A faringe conduz tanto o ar (para a laringe) quanto o alimento (para o esôfago).", categoria:"Sistema digestório x respiratório", dificuldade:"médio"},
+  {pergunta:"A epiglote impede que o alimento entre:", alternativas:["No estômago","Na laringe/traqueia","No intestino","No fígado"], resposta:1, explicacao:"Durante a deglutição, a epiglote fecha a entrada da laringe, evitando que o alimento 'entre pelo caminho errado'.", categoria:"Sistema digestório x respiratório", dificuldade:"médio"},
+  {pergunta:"O que é a Asma?", alternativas:["Uma infecção bacteriana rara","Uma doença que causa inflamação e estreitamento das vias aéreas","Um tipo de câncer","Uma doença do estômago"], resposta:1, explicacao:"A asma causa inflamação e estreitamento dos brônquios, dificultando a passagem do ar.", categoria:"Doenças", dificuldade:"médio"},
+  {pergunta:"Qual é um sintoma comum da asma?", alternativas:["Falta de ar e chiado no peito","Dor de dente","Perda de audição","Dor nas pernas"], resposta:0, explicacao:"Crises de asma costumam causar falta de ar, chiado no peito e tosse.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"O que é a Bronquite?", alternativas:["Inflamação dos brônquios","Fratura das costelas","Infecção do ouvido","Inflamação do estômago"], resposta:0, explicacao:"A bronquite é a inflamação da mucosa dos brônquios, podendo ser aguda ou crônica.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"A Pneumonia afeta principalmente:", alternativas:["Os alvéolos pulmonares","Os ossos do crânio","O intestino delgado","A pele"], resposta:0, explicacao:"A pneumonia é uma infecção que inflama os alvéolos, podendo enchê-los de líquido ou pus.", categoria:"Doenças", dificuldade:"médio"},
+  {pergunta:"A COVID-19 é causada por:", alternativas:["Um vírus","Uma bactéria","Um fungo","Um verme"], resposta:0, explicacao:"A COVID-19 é causada pelo vírus SARS-CoV-2 e pode afetar gravemente o sistema respiratório.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"DPOC significa:", alternativas:["Doença Pulmonar Obstrutiva Crônica","Doença Pulmonar Ocasional Comum","Distúrbio Pulmonar de Origem Cardíaca","Doença do Pâncreas e Ossos"], resposta:0, explicacao:"A DPOC é uma condição crônica que dificulta a passagem do ar, muitas vezes ligada ao tabagismo.", categoria:"Doenças", dificuldade:"difícil"},
+  {pergunta:"A Tuberculose é causada por:", alternativas:["Uma bactéria","Um vírus","Alergia","Excesso de exercício"], resposta:0, explicacao:"A tuberculose é causada pela bactéria Mycobacterium tuberculosis e afeta principalmente os pulmões.", categoria:"Doenças", dificuldade:"médio"},
+  {pergunta:"A Rinite é uma inflamação que ocorre:", alternativas:["No estômago","Na mucosa do nariz","No coração","Nos rins"], resposta:1, explicacao:"A rinite é a inflamação da mucosa nasal, geralmente causada por alergias, vírus ou irritantes.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"Um sintoma comum da rinite alérgica é:", alternativas:["Espirros e coceira no nariz","Dor no joelho","Perda de visão","Queda de cabelo"], resposta:0, explicacao:"A rinite alérgica costuma causar espirros, coceira, nariz entupido e coriza.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"Uma forma geral de prevenir doenças respiratórias é:", alternativas:["Evitar fumaça e manter vacinação em dia","Comer muito doce","Dormir pouco","Evitar água"], resposta:0, explicacao:"Evitar cigarro/fumaça, manter vacinas em dia e lavar as mãos ajudam a prevenir diversas doenças respiratórias.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"Qual estrutura é responsável pelas trocas gasosas?", alternativas:["Traqueia","Alvéolos","Faringe","Laringe"], resposta:1, explicacao:"É nos alvéolos que o oxigênio passa para o sangue e o gás carbônico sai do sangue.", categoria:"Alvéolos", dificuldade:"fácil"},
+  {pergunta:"Os anéis cartilaginosos da traqueia servem para:", alternativas:["Produzir muco","Manter o tubo sempre aberto","Aquecer o sangue","Digerir alimentos"], resposta:1, explicacao:"Os anéis de cartilagem evitam que a traqueia colapse, mantendo a passagem de ar livre.", categoria:"Traqueia", dificuldade:"médio"},
+  {pergunta:"Os pulmões estão localizados:", alternativas:["No abdômen","Na caixa torácica","Na cabeça","Nas pernas"], resposta:1, explicacao:"Os pulmões ficam dentro da caixa torácica, protegidos pelas costelas.", categoria:"Anatomia", dificuldade:"fácil"},
+  {pergunta:"O que acontece durante a expiração?", alternativas:["O diafragma relaxa e sobe, o ar sai","O diafragma contrai e desce","O coração para","O ar entra nos pulmões"], resposta:0, explicacao:"Na expiração, o diafragma relaxa e sobe, diminuindo o volume torácico e expulsando o ar.", categoria:"Respiração", dificuldade:"médio"},
+  {pergunta:"Os cílios presentes nas vias respiratórias ajudam a:", alternativas:["Produzir som","Empurrar muco e partículas para fora","Digerir gordura","Bombear sangue"], resposta:1, explicacao:"Os cílios movem o muco (com poeira e micro-organismos presos) para fora das vias aéreas.", categoria:"Curiosidades", dificuldade:"médio"},
+  {pergunta:"Aproximadamente quantas vezes por dia uma pessoa respira?", alternativas:["Cerca de 20 mil vezes","Cerca de 100 vezes","Cerca de 1 milhão de vezes","Cerca de 5 vezes"], resposta:0, explicacao:"Em repouso, uma pessoa respira em média entre 12 e 20 vezes por minuto — cerca de 20 mil vezes ao dia.", categoria:"Curiosidades", dificuldade:"difícil"},
+  {pergunta:"O sangue que sai dos pulmões rumo ao coração está:", alternativas:["Rico em oxigênio","Rico apenas em CO₂","Sem nenhum gás","Cheio de alimento"], resposta:0, explicacao:"Depois da troca gasosa nos alvéolos, o sangue fica rico em oxigênio e segue para o coração.", categoria:"Trocas gasosas", dificuldade:"médio"},
+  {pergunta:"Qual estrutura protege os pulmões de partículas grandes logo na entrada do ar?", alternativas:["Pelos e mucosa do nariz","Estômago","Fígado","Rins"], resposta:0, explicacao:"Os pelos nasais e a mucosa filtram poeira e partículas antes que o ar chegue mais fundo.", categoria:"Anatomia", dificuldade:"fácil"},
+  {pergunta:"Qual destas NÃO é uma estrutura do sistema respiratório?", alternativas:["Bronquíolos","Alvéolos","Intestino grosso","Laringe"], resposta:2, explicacao:"O intestino grosso faz parte do sistema digestório, não do respiratório.", categoria:"Sistema digestório x respiratório", dificuldade:"fácil"},
+  {pergunta:"A gripe é causada por:", alternativas:["Um vírus (influenza)","Uma bactéria","Um fungo","Estresse apenas"], resposta:0, explicacao:"A gripe é causada pelo vírus influenza e afeta principalmente nariz, garganta e pulmões.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"Pessoas com asma costumam usar qual tipo de tratamento nas crises?", alternativas:["Bombinha (broncodilatador) inalável","Antibiótico em pó","Xarope para os olhos","Nenhum tratamento é necessário"], resposta:0, explicacao:"Broncodilatadores inaláveis ajudam a relaxar os músculos das vias aéreas durante uma crise de asma.", categoria:"Doenças", dificuldade:"médio"},
+  {pergunta:"Ordem correta simplificada do caminho do ar:", alternativas:["Nariz → Faringe → Laringe → Traqueia → Brônquios → Alvéolos","Nariz → Alvéolos → Traqueia → Faringe","Traqueia → Nariz → Alvéolos → Faringe","Alvéolos → Brônquios → Nariz → Faringe"], resposta:0, explicacao:"O ar percorre: Nariz/Boca → Faringe → Laringe → Traqueia → Brônquios → Bronquíolos → Alvéolos.", categoria:"Respiração", dificuldade:"médio"},
+  {pergunta:"O que caracteriza os bronquíolos?", alternativas:["São os menores tubos do sistema respiratório antes dos alvéolos","São veias do coração","Ficam no estômago","Produzem hormônios"], resposta:0, explicacao:"Os bronquíolos são ramificações finas que conduzem o ar até os alvéolos.", categoria:"Anatomia", dificuldade:"médio"},
+  {pergunta:"Fumar cigarro está relacionado ao risco aumentado de:", alternativas:["DPOC e câncer de pulmão","Melhora da respiração","Aumento da capacidade pulmonar","Nenhum risco"], resposta:0, explicacao:"O tabagismo é um dos principais fatores de risco para DPOC, bronquite crônica e câncer de pulmão.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"Qual estrutura conecta a faringe aos brônquios, passando pela laringe?", alternativas:["Traqueia","Esôfago","Estômago","Intestino"], resposta:0, explicacao:"A traqueia é o tubo que liga a laringe aos brônquios.", categoria:"Traqueia", dificuldade:"fácil"},
+  {pergunta:"Nos capilares sanguíneos ao redor dos alvéolos, o sangue recebe:", alternativas:["Oxigênio","Apenas água","Alimento digerido","Bile"], resposta:0, explicacao:"É nos capilares que envolvem os alvéolos que o sangue capta o oxigênio do ar inspirado.", categoria:"Trocas gasosas", dificuldade:"fácil"},
+  {pergunta:"Um cuidado simples que ajuda a manter os pulmões saudáveis é:", alternativas:["Praticar atividade física e evitar poluição/fumaça","Evitar respirar fundo","Comer apenas doces","Ficar sempre parado"], resposta:0, explicacao:"Atividade física regular e evitar ambientes com fumaça/poluição ajudam a manter os pulmões saudáveis.", categoria:"Curiosidades", dificuldade:"fácil"},
+  {pergunta:"Verdadeiro ou falso: os alvéolos são importantes para as trocas gasosas.", tipo:"tf", resposta:true, explicacao:"Verdadeiro — é exatamente nos alvéolos que ocorrem as trocas entre O₂ e CO₂.", categoria:"Alvéolos", dificuldade:"fácil"},
+  {pergunta:"Verdadeiro ou falso: o estômago faz parte do sistema respiratório.", tipo:"tf", resposta:false, explicacao:"Falso — o estômago pertence ao sistema digestório.", categoria:"Sistema digestório x respiratório", dificuldade:"fácil"},
+  {pergunta:"Verdadeiro ou falso: o diafragma participa dos movimentos respiratórios.", tipo:"tf", resposta:true, explicacao:"Verdadeiro — o diafragma é o principal músculo da respiração.", categoria:"Respiração", dificuldade:"fácil"},
+  {pergunta:"Verdadeiro ou falso: a bronquite é sempre causada por vírus.", tipo:"tf", resposta:false, explicacao:"Falso — a bronquite pode ter causas virais, bacterianas ou até irritantes (fumaça, poluição).", categoria:"Doenças", dificuldade:"médio"},
+  {pergunta:"Verdadeiro ou falso: a rinite pode ser causada por alergia.", tipo:"tf", resposta:true, explicacao:"Verdadeiro — a rinite alérgica é uma das formas mais comuns da doença.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"Verdadeiro ou falso: a COVID-19 nunca afeta os pulmões.", tipo:"tf", resposta:false, explicacao:"Falso — em casos moderados/graves, a COVID-19 pode causar inflamação importante nos pulmões.", categoria:"Doenças", dificuldade:"médio"},
+  {pergunta:"Quantos pulmões o ser humano possui?", alternativas:["Um","Dois","Três","Quatro"], resposta:1, explicacao:"O ser humano possui dois pulmões, um de cada lado do coração.", categoria:"Anatomia", dificuldade:"fácil"},
+  {pergunta:"A pleura é uma membrana que envolve:", alternativas:["O coração","Os pulmões","O estômago","O fígado"], resposta:1, explicacao:"A pleura é uma membrana dupla que reveste os pulmões e a parede interna do tórax.", categoria:"Anatomia", dificuldade:"médio"},
+  {pergunta:"O septo nasal é responsável por:", alternativas:["Dividir a cavidade nasal em duas partes","Produzir hormônios","Bombear sangue","Digerir alimentos"], resposta:0, explicacao:"O septo nasal divide o nariz internamente em duas narinas.", categoria:"Anatomia", dificuldade:"médio"},
+  {pergunta:"O pulmão direito é dividido em quantos lobos?", alternativas:["Dois","Três","Quatro","Um"], resposta:1, explicacao:"O pulmão direito tem três lobos, enquanto o esquerdo tem dois (para dar espaço ao coração).", categoria:"Anatomia", dificuldade:"difícil"},
+  {pergunta:"Qual substância reveste os alvéolos e facilita sua expansão?", alternativas:["Surfactante pulmonar","Bile","Saliva","Insulina"], resposta:0, explicacao:"O surfactante pulmonar reduz a tensão superficial dos alvéolos, evitando que colabem.", categoria:"Curiosidades", dificuldade:"difícil"},
+  {pergunta:"Quais músculos, além do diafragma, ajudam na respiração?", alternativas:["Músculos intercostais","Bíceps","Quadríceps","Músculos faciais"], resposta:0, explicacao:"Os músculos intercostais, entre as costelas, ajudam a expandir e contrair a caixa torácica.", categoria:"Respiração", dificuldade:"médio"},
+  {pergunta:"Durante a inspiração, a pressão dentro dos pulmões fica:", alternativas:["Menor que a pressão externa","Maior que a pressão externa","Igual à pressão externa","Não muda"], resposta:0, explicacao:"A pressão interna cai, criando uma diferença que faz o ar entrar nos pulmões.", categoria:"Respiração", dificuldade:"difícil"},
+  {pergunta:"O oxigênio é transportado no sangue principalmente ligado a:", alternativas:["Hemoglobina","Glicose","Colesterol","Bile"], resposta:0, explicacao:"A hemoglobina, presente nas hemácias, se liga ao oxigênio para transportá-lo pelo corpo.", categoria:"Trocas gasosas", dificuldade:"médio"},
+  {pergunta:"Recém-nascidos costumam respirar:", alternativas:["Mais rápido que os adultos","Mais devagar que os adultos","No mesmo ritmo dos adultos","Só pela boca"], resposta:0, explicacao:"Bebês têm frequência respiratória mais alta que adultos, podendo passar de 30 respirações por minuto.", categoria:"Curiosidades", dificuldade:"médio"},
+  {pergunta:"O soluço é causado por:", alternativas:["Contrações involuntárias do diafragma","Excesso de oxigênio","Falta de saliva","Batimento cardíaco irregular"], resposta:0, explicacao:"O soluço ocorre quando o diafragma se contrai de forma involuntária e repentina.", categoria:"Curiosidades", dificuldade:"médio"},
+  {pergunta:"O que é a apneia do sono?", alternativas:["Pausas na respiração durante o sono","Excesso de sono","Ronco silencioso","Sonhos muito vívidos"], resposta:0, explicacao:"A apneia do sono é caracterizada por pausas involuntárias na respiração enquanto a pessoa dorme.", categoria:"Doenças", dificuldade:"médio"},
+  {pergunta:"A laringite é a inflamação:", alternativas:["Da laringe","Do fígado","Do intestino","Dos rins"], resposta:0, explicacao:"A laringite inflama a laringe, podendo causar rouquidão ou perda temporária da voz.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"A sinusite é a inflamação:", alternativas:["Dos seios da face (cavidades ao redor do nariz)","Do estômago","Dos pulmões inteiros","Do coração"], resposta:0, explicacao:"A sinusite inflama os seios paranasais, cavidades cheias de ar ao redor do nariz.", categoria:"Doenças", dificuldade:"médio"},
+  {pergunta:"O enfisema pulmonar está relacionado à destruição de:", alternativas:["Alvéolos","Ossos","Dentes","Unhas"], resposta:0, explicacao:"O enfisema destrói progressivamente as paredes dos alvéolos, reduzindo a superfície de troca gasosa.", categoria:"Doenças", dificuldade:"difícil"},
+  {pergunta:"Verdadeiro ou falso: fumar cigarro pode causar câncer de pulmão.", tipo:"tf", resposta:true, explicacao:"Verdadeiro — o tabagismo é o principal fator de risco para o câncer de pulmão.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"O espirro é um reflexo que serve para:", alternativas:["Expulsar partículas irritantes do nariz","Aumentar a temperatura do corpo","Digerir alimentos mais rápido","Fortalecer os pulmões"], resposta:0, explicacao:"O espirro expulsa com força partículas ou irritantes presos nas vias nasais.", categoria:"Curiosidades", dificuldade:"fácil"},
+  {pergunta:"O bocejo está mais associado a:", alternativas:["Cansaço ou sono","Fome extrema","Alergia","Febre alta"], resposta:0, explicacao:"O bocejo costuma ocorrer em momentos de cansaço, tédio ou sonolência.", categoria:"Curiosidades", dificuldade:"fácil"},
+  {pergunta:"Em grandes altitudes, o ar tem:", alternativas:["Menos oxigênio disponível","Mais oxigênio disponível","A mesma quantidade de oxigênio","Apenas gás carbônico"], resposta:0, explicacao:"Em altitudes elevadas, a pressão do ar cai e há menos oxigênio disponível para respirar.", categoria:"Curiosidades", dificuldade:"médio"},
+  {pergunta:"Durante exercícios físicos intensos, a frequência respiratória:", alternativas:["Aumenta","Diminui","Permanece igual","Para completamente"], resposta:0, explicacao:"O corpo precisa de mais oxigênio durante o exercício, então a respiração fica mais rápida.", categoria:"Respiração", dificuldade:"fácil"},
+  {pergunta:"Qual estrutura garante que a traqueia não colabe mesmo durante movimentos do pescoço?", alternativas:["Os anéis cartilaginosos","Os alvéolos","O diafragma","A pleura"], resposta:0, explicacao:"Os anéis de cartilagem em formato de C mantêm a traqueia sempre aberta.", categoria:"Traqueia", dificuldade:"médio"},
+  {pergunta:"Qual destas é uma glândula do sistema digestório, não do respiratório?", alternativas:["Pâncreas","Traqueia","Bronquíolo","Laringe"], resposta:0, explicacao:"O pâncreas produz enzimas digestivas e hormônios; não faz parte do sistema respiratório.", categoria:"Sistema digestório x respiratório", dificuldade:"médio"},
+  {pergunta:"A vesícula biliar está associada a qual sistema?", alternativas:["Digestório","Respiratório","Nenhum dos dois","Ambos igualmente"], resposta:0, explicacao:"A vesícula biliar armazena a bile, usada na digestão de gorduras — faz parte do sistema digestório.", categoria:"Sistema digestório x respiratório", dificuldade:"médio"},
+  {pergunta:"Verdadeiro ou falso: os pulmões conseguem se autolimpar completamente de qualquer substância inalada.", tipo:"tf", resposta:false, explicacao:"Falso — embora tenham mecanismos de defesa (cílios, muco), certas substâncias podem causar danos permanentes.", categoria:"Curiosidades", dificuldade:"médio"},
+  {pergunta:"Qual é a principal função dos cílios nas vias respiratórias?", alternativas:["Empurrar muco e partículas para fora","Produzir som","Aquecer o sangue","Digerir gordura"], resposta:0, explicacao:"Os cílios movem continuamente o muco (com partículas presas) em direção à garganta para ser eliminado.", categoria:"Curiosidades", dificuldade:"médio"},
+  {pergunta:"Qual doença respiratória é prevenida pela vacina BCG?", alternativas:["Tuberculose","Asma","Rinite","Bronquite"], resposta:0, explicacao:"A vacina BCG é uma das formas de prevenção contra formas graves de tuberculose.", categoria:"Doenças", dificuldade:"médio"},
+  {pergunta:"O que é a hipóxia?", alternativas:["Falta de oxigênio nos tecidos do corpo","Excesso de oxigênio no sangue","Um tipo de alergia","Uma doença do estômago"], resposta:0, explicacao:"Hipóxia é a condição em que os tecidos do corpo não recebem oxigênio suficiente.", categoria:"Trocas gasosas", dificuldade:"difícil"},
+  {pergunta:"Verdadeiro ou falso: respirar pela boca filtra o ar tão bem quanto respirar pelo nariz.", tipo:"tf", resposta:false, explicacao:"Falso — o nariz filtra, aquece e umidifica o ar; respirar pela boca pula essa filtragem.", categoria:"Curiosidades", dificuldade:"fácil"},
+  {pergunta:"Qual é a função da mucosa que reveste as vias respiratórias?", alternativas:["Produzir muco para reter partículas e umidificar o ar","Produzir insulina","Digerir proteínas","Bombear sangue"], resposta:0, explicacao:"A mucosa produz muco, que retém partículas estranhas e ajuda a manter o ar úmido.", categoria:"Anatomia", dificuldade:"médio"},
+  {pergunta:"O ronco costuma ser causado por:", alternativas:["Vibração dos tecidos na garganta durante a respiração","Batimento cardíaco acelerado","Movimento dos olhos durante o sono","Digestão lenta"], resposta:0, explicacao:"O ronco ocorre quando o ar passa por vias aéreas parcialmente obstruídas, vibrando os tecidos da garganta.", categoria:"Curiosidades", dificuldade:"fácil"},
+  {pergunta:"Mergulhadores livres (freedivers) treinam principalmente para:", alternativas:["Aumentar a capacidade pulmonar e controlar a respiração","Respirar mais rápido","Eliminar o uso dos pulmões","Aumentar a frequência cardíaca"], resposta:0, explicacao:"Freedivers treinam a capacidade pulmonar e o controle da respiração para ficar mais tempo debaixo d'água.", categoria:"Curiosidades", dificuldade:"difícil"},
+  {pergunta:"A poluição do ar está associada ao aumento de:", alternativas:["Doenças respiratórias","Doenças ósseas apenas","Problemas de visão apenas","Nenhum problema de saúde"], resposta:0, explicacao:"A poluição do ar pode agravar ou causar diversas doenças respiratórias, como asma e bronquite.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"Qual é o nome do volume de ar movido em uma respiração normal e tranquila?", alternativas:["Volume corrente","Volume total","Volume residual","Volume máximo"], resposta:0, explicacao:"O volume corrente é a quantidade de ar inspirada e expirada numa respiração normal.", categoria:"Respiração", dificuldade:"difícil"},
+  {pergunta:"Verdadeiro ou falso: o gás carbônico é totalmente inútil para o corpo.", tipo:"tf", resposta:false, explicacao:"Falso — o CO₂ também ajuda a regular o pH do sangue e estimula o centro respiratório no cérebro.", categoria:"Trocas gasosas", dificuldade:"difícil"},
+  {pergunta:"O centro que controla o ritmo da respiração está localizado:", alternativas:["No cérebro (tronco encefálico)","No estômago","Nos pulmões","No fígado"], resposta:0, explicacao:"O tronco encefálico contém os centros nervosos que controlam automaticamente o ritmo respiratório.", categoria:"Respiração", dificuldade:"difícil"},
+  {pergunta:"Qual destas NÃO é uma forma de prevenir doenças respiratórias?", alternativas:["Fumar regularmente","Lavar as mãos","Vacinar-se","Evitar ambientes poluídos"], resposta:0, explicacao:"Fumar é um dos maiores fatores de risco para doenças respiratórias, não uma forma de prevenção.", categoria:"Doenças", dificuldade:"fácil"},
+  {pergunta:"O que caracteriza a DPOC ao longo do tempo?", alternativas:["Piora progressiva e crônica da função pulmonar","Melhora espontânea sem tratamento","Cura completa em poucos dias","Afeta apenas o sistema digestório"], resposta:0, explicacao:"A DPOC é uma doença crônica e progressiva, geralmente ligada ao tabagismo.", categoria:"Doenças", dificuldade:"difícil"},
+  {pergunta:"Verdadeiro ou falso: os bronquíolos possuem cartilagem como a traqueia.", tipo:"tf", resposta:false, explicacao:"Falso — diferente da traqueia e dos brônquios maiores, os bronquíolos não têm cartilagem.", categoria:"Anatomia", dificuldade:"difícil"},
+  {pergunta:"Qual é a cor característica do sangue rico em oxigênio?", alternativas:["Vermelho vivo","Azul","Verde","Amarelo"], resposta:0, explicacao:"O sangue rico em oxigênio tem cor vermelho vivo, graças à hemoglobina oxigenada.", categoria:"Trocas gasosas", dificuldade:"fácil"},
+  {pergunta:"Por que crianças pequenas costumam respirar mais rápido que adultos?", alternativas:["Porque seus pulmões são menores e precisam de mais respirações","Porque têm mais oxigênio no corpo","Porque não sabem respirar direito","Porque não têm diafragma"], resposta:0, explicacao:"Como os pulmões das crianças são menores, elas respiram mais vezes por minuto para suprir as necessidades do corpo.", categoria:"Curiosidades", dificuldade:"médio"},
+];
+
+/* ---------------- ícones SVG (ilustrações próprias, sem dependências externas) ---------------- */
+const ICONS = {
+  molecule: `<svg viewBox="0 0 110 76">
+    <defs>
+      <radialGradient id="gSmall" cx="32%" cy="26%" r="78%"><stop offset="0%" stop-color="#eafcff"/><stop offset="55%" stop-color="#4fe3ff"/><stop offset="100%" stop-color="#1a7fc4"/></radialGradient>
+      <radialGradient id="gBig" cx="30%" cy="24%" r="80%"><stop offset="0%" stop-color="#ffffff"/><stop offset="45%" stop-color="#5ecbff"/><stop offset="100%" stop-color="#155fa8"/></radialGradient>
+    </defs>
+    <g stroke="#7fe9ff" stroke-width="2" stroke-linecap="round" opacity="0.5">
+      <line x1="0" y1="44" x2="13" y2="44"/>
+      <line x1="2" y1="52" x2="11" y2="52"/>
+      <line x1="3" y1="36" x2="11" y2="36"/>
+    </g>
+    <path d="M15 47 C3 43 1 27 9 15 C12 23 16 29 21 33 L23 47 C20 51 18 51 15 47 Z" fill="#7a3fd6" opacity="0.9"/>
+    <path d="M15 47 C5 43 3 29 9 17" fill="none" stroke="#c9a7ff" stroke-width="1.3" opacity=".65"/>
+    <circle cx="27" cy="43" r="15" fill="url(#gSmall)"/>
+    <ellipse cx="21" cy="35" rx="4.3" ry="2.8" fill="#ffffff" opacity="0.55"/>
+    <text x="27" y="35" font-family="Orbitron, Arial, sans-serif" font-size="9" font-weight="800" fill="#08324a" text-anchor="middle">O₂</text>
+    <circle cx="22.5" cy="46" r="1.5" fill="#08324a"/>
+    <circle cx="31.5" cy="46" r="1.5" fill="#08324a"/>
+    <path d="M23.5 51 Q27 53 30.5 51" stroke="#08324a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <circle cx="59" cy="35" r="21" fill="url(#gBig)"/>
+    <ellipse cx="50" cy="24" rx="6.3" ry="4" fill="#ffffff" opacity="0.6"/>
+    <text x="59" y="25" font-family="Orbitron, Arial, sans-serif" font-size="11" font-weight="800" fill="#0a2a52" text-anchor="middle">O₂</text>
+    <path d="M46 34 L54 31" stroke="#0a2a52" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M64 31 L72 34" stroke="#0a2a52" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="51" cy="39" rx="4.8" ry="5.8" fill="#ffffff"/>
+    <ellipse cx="67" cy="39" rx="4.8" ry="5.8" fill="#ffffff"/>
+    <circle cx="52.4" cy="40.4" r="2.5" fill="#0a1030"/>
+    <circle cx="68.4" cy="40.4" r="2.5" fill="#0a1030"/>
+    <path d="M51 48 Q59 56 67 48 Q59 53 51 48 Z" fill="#0a2a52"/>
+    <path d="M54 49 Q59 52 64 49" stroke="#ff8a9d" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  nariz: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M26 14c-2 10-9 16-9 26a9 9 0 0 0 9 9h14a9 9 0 0 0 9-9c0-10-7-16-9-26"/><circle cx="27" cy="41" r="2.4" fill="currentColor" stroke="none"/><circle cx="37" cy="41" r="2.4" fill="currentColor" stroke="none"/><path d="M18 30c-3 2-4 5-3 9"/><path d="M46 30c3 2 4 5 3 9"/></svg>`,
+  faringe: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10c0 10 4 14 4 20s-4 10-4 20"/><path d="M46 10c0 10-4 14-4 20s4 10 4 20"/><path d="M20 16h24"/><path d="M20 48h24"/><path d="M22 30h20"/></svg>`,
+  laringe: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="16" width="28" height="32" rx="8"/><path d="M24 28c4 3 12 3 16 0"/><path d="M24 38c4-3 12-3 16 0"/></svg>`,
+  traqueia: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 8v48"/><path d="M42 8v48"/><path d="M22 14h20"/><path d="M22 22h20"/><path d="M22 30h20"/><path d="M22 38h20"/><path d="M22 46h20"/></svg>`,
+  bronquios: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6v18"/><path d="M32 24C20 30 16 38 14 52"/><path d="M32 24C44 30 48 38 50 52"/><path d="M32 24C24 34 22 42 22 52"/><path d="M32 24C40 34 42 42 42 52"/></svg>`,
+  bronquiolos: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6v10"/><path d="M32 16c-8 4-10 8-14 14"/><path d="M32 16c8 4 10 8 14 14"/><path d="M18 30c-4 4-6 8-8 16"/><path d="M18 30c2 4 2 8 2 14"/><path d="M46 30c4 4 6 8 8 16"/><path d="M46 30c-2 4-2 8-2 14"/></svg>`,
+  alveolos: `<svg viewBox="0 0 64 64" fill="currentColor" stroke="none"><circle cx="24" cy="24" r="9"/><circle cx="42" cy="22" r="7"/><circle cx="20" cy="42" r="7"/><circle cx="38" cy="40" r="9"/><circle cx="48" cy="36" r="5.5"/></svg>`,
+  pulmoes: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M30 8v14"/><path d="M30 22c-6-6-16-4-18 6-2 10 0 24 8 26 6 1.5 10-3 10-9V22Z"/><path d="M34 22c6-6 16-4 18 6 2 10 0 24-8 26-6 1.5-10-3-10-9V22Z"/></svg>`,
+  diafragma: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 40c8-14 16-20 22-20s14 6 22 20"/><path d="M10 48c8-10 16-15 22-15s14 5 22 15"/></svg>`,
+  capilares: `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="10"/><path d="M32 12v10"/><path d="M32 42v10"/><path d="M12 32h10"/><path d="M42 32h10"/><path d="M17 17l7 7"/><path d="M40 40l7 7"/><path d="M47 17l-7 7"/><path d="M24 40l-7 7"/></svg>`,
+  sangue: `<svg viewBox="0 0 64 64" fill="currentColor" stroke="none"><path d="M32 6C22 22 14 32 14 42a18 18 0 0 0 36 0c0-10-8-20-18-36Z"/></svg>`
+};
+
+/* ---------------- doenças (fantasmas) ---------------- */
+const DISEASES = [
+  {id:"covid", nome:"COVID-19", cor:"#ff5d7a", desc:"Doença respiratória causada pelo vírus SARS-CoV-2, que pode inflamar os pulmões.", sintomas:"Febre, tosse, cansaço e falta de ar.", prevencao:"Vacinação, higiene das mãos e ventilação de ambientes."},
+  {id:"asma", nome:"Asma", cor:"#4fe3ff", desc:"Doença crônica que causa inflamação e estreitamento das vias aéreas.", sintomas:"Falta de ar, chiado no peito e tosse.", prevencao:"Evitar poeira/fumaça e manter o tratamento indicado por um médico."},
+  {id:"bronquite", nome:"Bronquite", cor:"#9b5cff", desc:"Inflamação da mucosa dos brônquios, podendo ser aguda ou crônica.", sintomas:"Tosse com secreção e desconforto no peito.", prevencao:"Evitar cigarro e poluição; tratar infecções cedo."},
+  {id:"rinite", nome:"Rinite", cor:"#3ee08a", desc:"Inflamação da mucosa nasal, comum em quadros alérgicos.", sintomas:"Espirros, coceira e nariz entupido.", prevencao:"Evitar poeira, ácaros e outros alérgenos conhecidos."},
+  {id:"pneumonia", nome:"Pneumonia", cor:"#ff8a3d", desc:"Infecção que inflama os alvéolos pulmonares.", sintomas:"Febre alta, tosse e dificuldade para respirar.", prevencao:"Vacinação e cuidados após gripes/resfriados mal curados."},
+  {id:"gripe", nome:"Gripe", cor:"#ffcb4d", desc:"Infecção viral (influenza) que afeta nariz, garganta e pulmões.", sintomas:"Febre, dores no corpo e tosse.", prevencao:"Vacinação anual e higiene das mãos."},
+  {id:"dpoc", nome:"DPOC", cor:"#c15cff", desc:"Doença Pulmonar Obstrutiva Crônica, que dificulta a passagem do ar.", sintomas:"Falta de ar progressiva e tosse crônica.", prevencao:"Não fumar é a principal forma de prevenção."},
+  {id:"tuberculose", nome:"Tuberculose", cor:"#ff5d9e", desc:"Infecção bacteriana que afeta principalmente os pulmões.", sintomas:"Tosse persistente, febre e perda de peso.", prevencao:"Vacina BCG e diagnóstico/tratamento precoces."},
+];
+const GHOST_ORDER = DISEASES.map(d=>d.id);
+
+/* ---------------- organs.js (área Aprender) ---------------- */
+const ORGANS = [
+  {icon:"nariz", cor:"#4fe3ff", n:"Nariz e Cavidade Nasal", fn:"Filtra, aquece e umidifica o ar que entra.", cur:"Os pelos e o muco retêm poeira e micro-organismos.", loc:"Início do sistema respiratório."},
+  {icon:"faringe", cor:"#5cc9ff", n:"Faringe", fn:"Conduz ar e alimento; é um canal comum.", cur:"É compartilhada com o sistema digestório.", loc:"Atrás do nariz e da boca."},
+  {icon:"laringe", cor:"#7fb8ff", n:"Laringe", fn:"Contém as cordas vocais e protege as vias aéreas.", cur:"A epiglote fecha a laringe ao engolir.", loc:"Entre a faringe e a traqueia."},
+  {icon:"traqueia", cor:"#3b6bff", n:"Traqueia", fn:"Conduz o ar até os brônquios.", cur:"É sustentada por anéis de cartilagem.", loc:"Do pescoço até o tórax."},
+  {icon:"bronquios", cor:"#7a5cff", n:"Brônquios", fn:"Levam o ar da traqueia aos pulmões.", cur:"Se dividem como os galhos de uma árvore.", loc:"Dentro do tórax, um para cada pulmão."},
+  {icon:"bronquiolos", cor:"#9b5cff", n:"Bronquíolos", fn:"Ramos finos que continuam a conduzir o ar.", cur:"Terminam exatamente nos alvéolos.", loc:"Dentro dos pulmões."},
+  {icon:"alveolos", cor:"#c15cff", n:"Alvéolos", fn:"Realizam a troca gasosa entre ar e sangue.", cur:"Há milhões deles, aumentando a área de troca.", loc:"Extremidade dos bronquíolos."},
+  {icon:"pulmoes", cor:"#ff5d9e", n:"Pulmões", fn:"Órgãos onde ocorre toda a troca gasosa.", cur:"O pulmão direito é um pouco maior que o esquerdo.", loc:"Dentro da caixa torácica."},
+  {icon:"diafragma", cor:"#ff8a3d", n:"Diafragma", fn:"Músculo que comanda a inspiração e expiração.", cur:"Ao contrair, desce e 'puxa' ar para dentro.", loc:"Abaixo dos pulmões."},
+  {icon:"capilares", cor:"#3ee08a", n:"Capilares Sanguíneos", fn:"Recebem o O₂ dos alvéolos e liberam CO₂.", cur:"Envolvem cada alvéolo como uma rede finíssima.", loc:"Ao redor dos alvéolos."},
+];
+
+/* ---------------- fases (10 fases, dificuldade progressiva) ---------------- */
+const PHASES = [
+  {id:1, nome:"Nariz e Cavidade Nasal", icon:"nariz", cor:"#4fe3ff", cols:11, rows:9,  loopFactor:.34, chaseProb:.22, ghostSpeed:.68,
+   texto:"Você entrou pelo NARIZ!\n\nColete as frutinhas 🍊 que fortalecem o sistema respiratório e fique atento às doenças que rondam por aqui."},
+  {id:2, nome:"Faringe", icon:"faringe", cor:"#5cc9ff", cols:11, rows:9,  loopFactor:.30, chaseProb:.28, ghostSpeed:.70,
+   texto:"Você chegou à FARINGE!\n\nA faringe é um canal comum ao ar e ao alimento. As doenças já começam a ficar mais atentas aos seus movimentos."},
+  {id:3, nome:"Laringe", icon:"laringe", cor:"#7fb8ff", cols:13, rows:9,  loopFactor:.27, chaseProb:.34, ghostSpeed:.72,
+   texto:"Você entrou na LARINGE!\n\nAqui ficam as cordas vocais. O labirinto cresceu — use os remédios 💊 com sabedoria!"},
+  {id:4, nome:"Traqueia", icon:"traqueia", cor:"#3b6bff", cols:13, rows:11, loopFactor:.23, chaseProb:.40, ghostSpeed:.75,
+   texto:"Você entrou na TRAQUEIA!\n\nAnéis cartilaginosos mantêm o tubo aberto. As doenças estão cada vez mais espertas."},
+  {id:5, nome:"Brônquios", icon:"bronquios", cor:"#7a5cff", cols:13, rows:11, loopFactor:.20, chaseProb:.46, ghostSpeed:.78,
+   texto:"Você chegou aos BRÔNQUIOS!\n\nO caminho se ramifica bastante. Fique de olho nos três perseguidores!"},
+  {id:6, nome:"Bronquíolos", icon:"bronquiolos", cor:"#9b5cff", cols:15, rows:11, loopFactor:.17, chaseProb:.53, ghostSpeed:.80,
+   texto:"Você entrou nos BRONQUÍOLOS!\n\nRamos cada vez mais finos — e doenças cada vez mais rápidas em sua perseguição."},
+  {id:7, nome:"Alvéolos", icon:"alveolos", cor:"#c15cff", cols:15, rows:13, loopFactor:.14, chaseProb:.60, ghostSpeed:.83,
+   texto:"Você chegou aos ALVÉOLOS!\n\nÉ aqui que o oxigênio passa para o sangue. O labirinto está bem maior agora."},
+  {id:8, nome:"Pulmões", icon:"pulmoes", cor:"#ff5d9e", cols:15, rows:13, loopFactor:.11, chaseProb:.68, ghostSpeed:.86,
+   texto:"Você chegou aos PULMÕES!\n\nMilhões de alvéolos garantem a troca gasosa. As doenças agora quase sempre sabem onde você está."},
+  {id:9, nome:"Diafragma", icon:"diafragma", cor:"#ff8a3d", cols:17, rows:13, loopFactor:.08, chaseProb:.76, ghostSpeed:.89,
+   texto:"Você chegou ao DIAFRAGMA!\n\nEsse músculo comanda sua respiração. Reste atento: poucos loops sobram para escapar."},
+  {id:10, nome:"Corrente Sanguínea", icon:"sangue", cor:"#3ee08a", cols:17, rows:13, loopFactor:.05, chaseProb:.85, ghostSpeed:.92,
+   texto:"FASE FINAL: CORRENTE SANGUÍNEA!\n\nO oxigênio está prestes a viajar pelo corpo todo. As doenças estão no auge da esperteza — boa sorte!"},
+];
+
+/* ---------------- conquistas ---------------- */
+const ACHIEVEMENTS = [
+  {id:"primeira", nome:"Primeira Respiração", icone:"🏆", desc:"Complete a primeira fase.", cond:s=>s.phasesCompleted>=1},
+  {id:"caminho", nome:"Caminho do Oxigênio", icone:"🏆", desc:"Complete todas as 10 fases.", cond:s=>s.phasesCompleted>=10},
+  {id:"mestre", nome:"Mestre dos Alvéolos", icone:"🏆", desc:"Acerte 5 perguntas sobre alvéolos/trocas gasosas.", cond:s=>s.alveoloCertas>=5},
+  {id:"cacador", nome:"Caçador de Doenças", icone:"🏆", desc:"Coma 3 fantasmas de doença usando o remédio.", cond:s=>s.ghostsEatenTotal>=3},
+  {id:"semerrar", nome:"Sem Errar", icone:"🏆", desc:"Complete uma fase sem perder vidas.", cond:s=>s.perfectPhase},
+  {id:"perfeita", nome:"Respiração Perfeita", icone:"🏆", desc:"Termine o jogo com 90%+ de acerto nas batalhas.", cond:s=>s.finished && s.accuracy>=90},
+  {id:"biologista", nome:"Biologista", icone:"🏆", desc:"Acerte 20 perguntas no total.", cond:s=>s.correctCount>=20},
+  {id:"explorador", nome:"Explorador", icone:"🏆", desc:"Colete os 4 remédios de uma mesma fase.", cond:s=>s.secretFound},
+];
+
+const POINTS = {fruit:10, pellet:50, ghost:500, battleWin:100, phaseClear:500, wrong:-30};
+const FRUIT_EMOJIS = ["🍊","🍇","🍎","🍋","🥝"];
+const DIRS = {up:[0,-1], down:[0,1], left:[-1,0], right:[1,0]};
+
+/* ============================================================
+   ESTADO GLOBAL
+   ============================================================ */
+let save = loadSave();
+let state = {
+  screen:"menu", phaseIdx:0, score:0, lives:3,
+  correctCount:0, wrongCount:0, comboQuiz:0,
+  ghostsEatenTotal:0, alveoloCertas:0, phasesCompleted:0,
+  secretFound:false, usedQuestions:new Set(),
+  livesLostThisPhase:0, pelletsThisPhase:0, finished:false, accuracy:0,
+};
+const app = document.getElementById("app");
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function el(html){ const d=document.createElement("div"); d.innerHTML=html.trim(); return d.firstChild; }
+function toast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toast._h); toast._h=setTimeout(()=>t.classList.remove("show"),2600);
+}
+function unlockAchievement(id){
+  if(save.achievements.includes(id)) return;
+  save.achievements.push(id); persistSave();
+  const a=ACHIEVEMENTS.find(x=>x.id===id);
+  playSound("achievement"); toast("🏆 Conquista desbloqueada: "+a.nome);
+}
+function checkAchievements(){
+  const s={...state, ...save};
+  ACHIEVEMENTS.forEach(a=>{ if(!save.achievements.includes(a.id) && a.cond(s)) unlockAchievement(a.id); });
+}
+function topbar(title){ return `<div class="topbar"><button class="back" id="tbBack">← Voltar</button><div class="title">${title}</div><div style="width:52px"></div></div>`; }
+function wireBack(fn){ const b=document.getElementById("tbBack"); if(b) b.onclick=fn; }
+
+/* ---------------- ranking / nome de usuário ---------------- */
+function normName(n){ return (n||"").trim().toLowerCase(); }
+function nameExists(name, excludeName){
+  const nn=normName(name);
+  if(!nn) return false;
+  return save.leaderboard.some(e=>normName(e.name)===nn && (!excludeName || normName(e.name)!==normName(excludeName)));
+}
+function upsertLeaderboard(name, score, correct, timeMs){
+  let entry = save.leaderboard.find(e=>normName(e.name)===normName(name));
+  if(!entry){ entry={name, bestScore:0, bestTimeMs:null, bestCorrect:0}; save.leaderboard.push(entry); }
+  if(score>entry.bestScore) entry.bestScore=score;
+  if(correct>entry.bestCorrect) entry.bestCorrect=correct;
+  if(timeMs!=null && (entry.bestTimeMs==null || timeMs<entry.bestTimeMs)) entry.bestTimeMs=timeMs;
+  persistSave();
+}
+function fmtTime(ms){
+  if(ms==null) return "—";
+  const s=Math.floor(ms/1000), m=Math.floor(s/60), r=s%60;
+  return m+":"+String(r).padStart(2,"0");
+}
+function renderNamePrompt(onDone, opts){
+  opts = opts || {};
+  const isChange = !!opts.isChange;
+  state.screen="nameprompt"; app.innerHTML="";
+  app.appendChild(el(`<div class="screen">
+    <div class="intro-card">
+      <div class="icon-wrap" style="color:var(--cyan); width:56px; height:56px; margin:0 auto;">${ICONS.molecule}</div>
+      <h2>${isChange? "Trocar nome de jogador" : "Como podemos te chamar?"}</h2>
+      <p>Esse nome vai aparecer no ranking do jogo, salvo neste aparelho.</p>
+      <input id="nameInput" class="name-input" maxlength="18" placeholder="Seu nome" value="${isChange && save.username ? save.username.replace(/"/g,'') : ''}">
+      <div id="nameError" class="name-error"></div>
+    </div>
+    <button class="btn" id="nameConfirm">CONFIRMAR</button>
+    ${isChange? '<button class="btn secondary" id="nameCancel">Cancelar</button>' : ''}
+  </div>`));
+  const input=document.getElementById("nameInput");
+  const err=document.getElementById("nameError");
+  const submit=()=>{
+    const val=input.value.trim();
+    if(!val){ err.textContent="Digite um nome para continuar."; return; }
+    if(val.length>18){ err.textContent="Nome muito longo (máx. 18 caracteres)."; return; }
+    if(nameExists(val, isChange? save.username : null)){ err.textContent="Esse nome já existe. Escolha outro."; return; }
+    if(isChange && save.username){
+      const oldEntry = save.leaderboard.find(e=>normName(e.name)===normName(save.username));
+      if(oldEntry) oldEntry.name=val;
+    }
+    save.username=val; persistSave();
+    onDone();
+  };
+  document.getElementById("nameConfirm").onclick=submit;
+  input.addEventListener("keydown",(e)=>{ if(e.key==="Enter") submit(); });
+  input.focus();
+  if(isChange){
+    document.getElementById("nameCancel").onclick=()=>renderSettings();
+  }
+}
+function renderRanking(){
+  state.screen="ranking"; app.innerHTML="";
+  const byScore=[...save.leaderboard].sort((a,b)=>b.bestScore-a.bestScore).slice(0,10);
+  const byTime=[...save.leaderboard].filter(e=>e.bestTimeMs!=null).sort((a,b)=>a.bestTimeMs-b.bestTimeMs).slice(0,10);
+  const byCorrect=[...save.leaderboard].sort((a,b)=>b.bestCorrect-a.bestCorrect).slice(0,10);
+  const rows=(arr,valFn)=>{
+    if(!arr.length) return `<p style="text-align:center; color:var(--dim); padding:8px 0;">Ninguém no ranking ainda.</p>`;
+    return arr.map((e,i)=>`<div class="rank-row"><span class="rank-pos">${i+1}º</span><span class="rank-name">${e.name}${normName(e.name)===normName(save.username)?' <b>(você)</b>':''}</span><span class="rank-val">${valFn(e)}</span></div>`).join("");
+  };
+  app.appendChild(el(`<div class="screen">${topbar("Ranking")}
+    <div class="section-label">🏆 Maior pontuação (jogo completo)</div>
+    <div class="card">${rows(byScore, e=>e.bestScore)}</div>
+    <div class="section-label">⏱️ Menor tempo (jogo completo)</div>
+    <div class="card">${rows(byTime, e=>fmtTime(e.bestTimeMs))}</div>
+    <div class="section-label">✅ Mais acertos (jogo completo)</div>
+    <div class="card">${rows(byCorrect, e=>e.bestCorrect)}</div>
+  </div>`));
+  wireBack(renderMenu);
+}
+
+/* ============================================================
+   MENU
+   ============================================================ */
+function renderMenu(){
+  stopLoop(); stopMusic();
+  state.screen="menu";
+  app.innerHTML="";
+  app.appendChild(el(`
+    <div class="screen">
+      <div class="title-block">
+        <div class="lungs-bg">${ICONS.pulmoes}</div>
+        <div class="o2-orb orb1">O₂</div>
+        <div class="o2-orb orb2">O₂</div>
+        <div class="o2-orb orb3">O₂</div>
+        <div class="o2-logo">${ICONS.molecule}</div>
+        <h1>OXI-MAN</h1>
+        <div class="slogan"><span class="line"></span> A Jornada do Oxigênio <span class="line"></span></div>
+      </div>
+      ${save.username? `<div class="username-tag">Jogando como <b style="color:var(--cyan)">${save.username}</b></div>` : ""}
+      <div class="menu-list">
+        <button class="btn" id="mPlay">▶ JOGAR</button>
+        <button class="btn secondary" id="mLearn">📖 APRENDER</button>
+        <button class="btn secondary" id="mRanking">🥇 RANKING</button>
+        <button class="btn secondary" id="mAch">🏆 CONQUISTAS</button>
+        <button class="btn secondary" id="mStats">📊 MEU DESEMPENHO</button>
+        <button class="btn secondary" id="mSettings">⚙ CONFIGURAÇÕES</button>
+        <button class="btn secondary" id="mHow">❓ COMO JOGAR</button>
+      </div>
+      ${save.bestScore>0 ? `<div class="card" style="text-align:center;">Melhor pontuação: <b style="color:var(--gold)">${save.bestScore}</b></div>`:""}
+    </div>
+  `));
+  document.getElementById("mPlay").onclick=()=>{
+    const startGame=()=>{ resetRun(); renderPhaseIntro(save.unlockedPhase<PHASES.length?save.unlockedPhase:0); };
+    if(!save.username){ renderNamePrompt(startGame); } else { startGame(); }
+  };
+  document.getElementById("mLearn").onclick=renderLearn;
+  document.getElementById("mRanking").onclick=renderRanking;
+  document.getElementById("mAch").onclick=renderAchievements;
+  document.getElementById("mStats").onclick=renderStats;
+  document.getElementById("mSettings").onclick=renderSettings;
+  document.getElementById("mHow").onclick=renderHowTo;
+}
+function resetRun(){
+  state.score=0; state.lives=3; state.correctCount=0; state.wrongCount=0;
+  state.ghostsEatenTotal=0; state.alveoloCertas=0; state.phasesCompleted=0;
+  state.usedQuestions=new Set(); state.comboQuiz=0;
+  state.runStartMs=Date.now();
+}
+
+/* ---------------- Aprender ---------------- */
+function renderLearn(){
+  state.screen="learn"; app.innerHTML="";
+  const cards = ORGANS.map((o,i)=>`<div class="organ-card" data-i="${i}"><div class="e icon-wrap" style="color:${o.cor}">${ICONS[o.icon]}</div><div class="n">${o.n}</div></div>`).join("");
+  const dcards = DISEASES.map((d,i)=>`<div class="disease-card" data-d="${i}"><div class="gicon" style="background:${d.cor};">🦠</div><div class="n">${d.nome}</div></div>`).join("");
+  app.appendChild(el(`<div class="screen">${topbar("Aprender")}
+    <p style="text-align:center;">Toque em uma estrutura ou doença para saber mais.</p>
+    <div class="section-label">Estruturas do sistema respiratório</div>
+    <div class="grid2">${cards}</div>
+    <div class="section-label">🦠 Doenças respiratórias</div>
+    <div class="grid2">${dcards}</div>
+  </div>`));
+  wireBack(renderMenu);
+  document.querySelectorAll(".organ-card").forEach(c=>c.onclick=()=>renderOrganDetail(+c.dataset.i));
+  document.querySelectorAll(".disease-card").forEach(c=>c.onclick=()=>renderDiseaseDetail(+c.dataset.d));
+}
+function renderOrganDetail(i){
+  const o=ORGANS[i]; app.innerHTML="";
+  app.appendChild(el(`<div class="screen">${topbar(o.n)}
+    <div class="intro-card">
+      <div class="emoji icon-wrap" style="color:${o.cor}">${ICONS[o.icon]}</div>
+      <h2 style="color:${o.cor}">${o.n}</h2>
+      <p><b>Função:</b> ${o.fn}</p>
+      <p><b>Localização:</b> ${o.loc}</p>
+      <div class="fact-box">💡 Curiosidade: ${o.cur}</div>
+    </div>
+    <button class="btn" id="backLearn">Voltar</button>
+  </div>`));
+  wireBack(renderLearn);
+  document.getElementById("backLearn").onclick=renderLearn;
+}
+function renderDiseaseDetail(i){
+  const d=DISEASES[i]; app.innerHTML="";
+  app.appendChild(el(`<div class="screen">${topbar(d.nome)}
+    <div class="intro-card" style="box-shadow:0 0 30px ${d.cor}44, inset 0 0 0 1px ${d.cor}55;">
+      <div class="gicon" style="background:${d.cor}; width:56px; height:56px; border-radius:50%; margin:0 auto 8px; display:flex; align-items:center; justify-content:center; font-size:28px;">🦠</div>
+      <h2 style="color:${d.cor}">${d.nome}</h2>
+      <p>${d.desc}</p>
+      <p><b>Sintomas:</b> ${d.sintomas}</p>
+      <div class="fact-box">🛡️ Prevenção: ${d.prevencao}</div>
+    </div>
+    <button class="btn" id="backLearn2">Voltar</button>
+  </div>`));
+  wireBack(renderLearn);
+  document.getElementById("backLearn2").onclick=renderLearn;
+}
+
+/* ---------------- Conquistas / Desempenho / Config / Como jogar ---------------- */
+function renderAchievements(){
+  state.screen="ach"; app.innerHTML="";
+  const cards=ACHIEVEMENTS.map(a=>{
+    const got=save.achievements.includes(a.id);
+    return `<div class="ach-card ${got?'':'locked'}"><div class="e">${a.icone}</div><div class="n">${a.nome}</div><div class="d">${a.desc}</div></div>`;
+  }).join("");
+  app.appendChild(el(`<div class="screen">${topbar("Conquistas")}<div class="grid2">${cards}</div></div>`));
+  wireBack(renderMenu);
+}
+function renderStats(){
+  state.screen="stats"; app.innerHTML="";
+  const total=save.correctCount+save.wrongCount;
+  const acc=total?Math.round(save.correctCount/total*100):0;
+  app.appendChild(el(`<div class="screen">${topbar("Meu Desempenho")}
+    <div class="stat-grid">
+      <div class="stat-box"><div class="val">${save.bestScore}</div><div class="lbl">Melhor pontuação</div></div>
+      <div class="stat-box"><div class="val">${acc}%</div><div class="lbl">Precisão nas batalhas</div></div>
+      <div class="stat-box"><div class="val">${save.correctCount}</div><div class="lbl">Acertos totais</div></div>
+      <div class="stat-box"><div class="val">${save.wrongCount}</div><div class="lbl">Erros totais</div></div>
+      <div class="stat-box"><div class="val">${save.ghostsEatenTotal}</div><div class="lbl">Fantasmas comidos</div></div>
+      <div class="stat-box"><div class="val">${save.achievements.length}/${ACHIEVEMENTS.length}</div><div class="lbl">Conquistas</div></div>
+    </div>
+    <button class="btn secondary" id="resetProg">Reiniciar progresso</button>
+  </div>`));
+  wireBack(renderMenu);
+  document.getElementById("resetProg").onclick=()=>{
+    if(confirm("Isso vai apagar todo o seu progresso salvo. Continuar?")){ save={...DEFAULT_SAVE}; persistSave(); renderMenu(); }
+  };
+}
+function renderSettings(){
+  state.screen="settings"; app.innerHTML="";
+  app.appendChild(el(`<div class="screen">${topbar("Configurações")}
+    <div class="card">
+      <label style="display:flex; justify-content:space-between; align-items:center;">
+        <span>🔊 Efeitos sonoros</span>
+        <button class="btn small" id="toggleSound">${save.soundOn?"LIGADO":"DESLIGADO"}</button>
+      </label>
+    </div>
+    <div class="card">
+      <label style="display:flex; justify-content:space-between; align-items:center;">
+        <span>🎵 Música</span>
+        <button class="btn small" id="toggleMusic">${save.musicOn?"LIGADA":"DESLIGADA"}</button>
+      </label>
+    </div>
+    <div class="card">
+      <label style="display:flex; justify-content:space-between; align-items:center;">
+        <span>👤 Nome: ${save.username? `<b style="color:var(--cyan)">${save.username}</b>` : '<span style="color:var(--dim)">não definido</span>'}</span>
+        <button class="btn small" id="changeName">TROCAR</button>
+      </label>
+    </div>
+  </div>`));
+  wireBack(renderMenu);
+  document.getElementById("toggleSound").onclick=(e)=>{
+    save.soundOn=!save.soundOn; persistSave(); e.target.textContent=save.soundOn?"LIGADO":"DESLIGADO";
+    if(save.soundOn) playSound("click");
+  };
+  document.getElementById("toggleMusic").onclick=(e)=>{
+    save.musicOn=!save.musicOn; persistSave(); e.target.textContent=save.musicOn?"LIGADA":"DESLIGADA";
+    if(save.musicOn) startMusic(); else stopMusic();
+  };
+  document.getElementById("changeName").onclick=()=>{
+    renderNamePrompt(()=>renderSettings(), {isChange:true});
+  };
+}
+function renderHowTo(){
+  state.screen="how"; app.innerHTML="";
+  app.appendChild(el(`<div class="screen">${topbar("Como Jogar")}
+    <div class="card">
+      <p>🔵 Você controla o <b>Oxigênio (O₂)</b> em um labirinto, no estilo dos clássicos jogos de fantasminhas.</p>
+      <p>🕹️ No computador, use <b>WASD</b> ou as <b>setas</b>. No celular, use o controle na tela.</p>
+      <p>🍊 Colete as <b>frutas</b> espalhadas pelo labirinto — elas ajudam o sistema respiratório e dão pontos.</p>
+      <p>💊 Os <b>remédios</b> deixam você invencível por <b>5 segundos</b>: nesse tempo você pode comer os fantasmas de doença!</p>
+      <p>🦠 Os fantasmas são doenças (COVID-19, Asma, Bronquite, Rinite e outras). Se um fantasma te pegar fora do modo remédio, você entra em uma <b>batalha de pergunta</b> para escapar — errar custa 1 vida.</p>
+      <p>🏁 Complete a fase coletando todas as frutas e remédios. A cada fase, o labirinto cresce e os fantasmas ficam mais espertos e rápidos!</p>
+    </div>
+  </div>`));
+  wireBack(renderMenu);
+}
+
+/* ============================================================
+   INTRODUÇÃO DE FASE
+   ============================================================ */
+function renderPhaseIntro(idx){
+  stopLoop(); stopMusic();
+  if(idx>=PHASES.length) return renderResults();
+  state.phaseIdx=idx;
+  state.livesLostThisPhase=0; state.pelletsThisPhase=0;
+  const ph=PHASES[idx];
+  const ghostIds=[GHOST_ORDER[idx%8], GHOST_ORDER[(idx+1)%8], GHOST_ORDER[(idx+2)%8]];
+  const ghostChips = ghostIds.map(id=>{
+    const d=DISEASES.find(x=>x.id===id);
+    return `<div class="ghost-chip"><div class="gdot" style="background:${d.cor};">🦠</div>${d.nome}</div>`;
+  }).join("");
+  state.screen="intro"; app.innerHTML="";
+  app.appendChild(el(`<div class="screen">
+    <div class="hud"><span class="phase-tag">FASE ${idx+1}/10</span><span class="score">PONTOS: ${state.score}</span><span class="lives">${"❤️".repeat(state.lives)}</span></div>
+    <div class="intro-card" style="box-shadow:0 0 30px ${ph.cor}44, inset 0 0 0 1px ${ph.cor}55;">
+      <div class="emoji icon-wrap" style="color:${ph.cor}">${ICONS[ph.icon]}</div>
+      <h2 style="color:${ph.cor}">${ph.nome.toUpperCase()}</h2>
+      <p style="white-space:pre-line; color:var(--white);">${ph.texto}</p>
+      <div class="difficulty-row">
+        <div class="chip">Labirinto: <b>${ph.cols}×${ph.rows}</b></div>
+        <div class="chip">Esperteza: <b>${Math.round(ph.chaseProb*100)}%</b></div>
+      </div>
+      <div class="ghost-preview">${ghostChips}</div>
+    </div>
+    <button class="btn" id="introCont" style="background:linear-gradient(135deg, ${ph.cor}, var(--purple));">ENTENDI! CONTINUAR</button>
+    <button class="btn secondary" id="introMenu">Voltar ao menu</button>
+  </div>`));
+  document.getElementById("introCont").onclick=()=>{ playSound("click"); renderMazeScreen(idx, ghostIds); };
+  document.getElementById("introMenu").onclick=renderMenu;
+}
+
+/* ============================================================
+   GERAÇÃO DE LABIRINTO (backtracking + loops)
+   ============================================================ */
+function generateMaze(cols, rows, loopFactor){
+  const grid=[];
+  for(let r=0;r<rows;r++) grid.push(new Array(cols).fill("#"));
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  function carve(cx,cy){
+    grid[cy][cx]=".";
+    const dirs=shuffle([[0,-2],[0,2],[-2,0],[2,0]]);
+    for(const [dx,dy] of dirs){
+      const nx=cx+dx, ny=cy+dy;
+      if(ny>0 && ny<rows-1 && nx>0 && nx<cols-1 && grid[ny][nx]==="#"){
+        grid[cy+dy/2][cx+dx/2]="."; carve(nx,ny);
+      }
+    }
+  }
+  carve(1,1);
+  const innerWalls=[];
+  for(let r=1;r<rows-1;r++) for(let c=1;c<cols-1;c++){
+    if(grid[r][c]==="#"){
+      const h=grid[r][c-1]==="." && grid[r][c+1]===".";
+      const v=grid[r-1][c]==="." && grid[r+1][c]===".";
+      if(h||v) innerWalls.push([r,c]);
+    }
+  }
+  shuffle(innerWalls);
+  const n=Math.floor(innerWalls.length*loopFactor);
+  for(let i=0;i<n;i++){ const [r,c]=innerWalls[i]; grid[r][c]="."; }
+  return grid;
+}
+function nearestFloor(grid, cols, rows, tr, tc, avoid){
+  let best=null, bestDist=Infinity;
+  for(let r=1;r<rows-1;r++) for(let c=1;c<cols-1;c++){
+    if(grid[r][c]==="." && !(avoid.has(r+"-"+c))){
+      const d=Math.abs(r-tr)+Math.abs(c-tc);
+      if(d<bestDist){ bestDist=d; best=[r,c]; }
+    }
+  }
+  return best;
+}
+
+/* ============================================================
+   ESTADO DA FASE (labirinto + jogador + fantasmas)
+   ============================================================ */
+let M; // objeto do labirinto ativo
+
+function countExits(grid, cols, rows, r, c){
+  let n=0;
+  [[0,-1],[0,1],[-1,0],[1,0]].forEach(([dr,dc])=>{
+    const nr=r+dr, nc=c+dc;
+    if(nr>0 && nr<rows-1 && nc>0 && nc<cols-1 && grid[nr][nc]!=="#") n++;
+  });
+  return n;
+}
+function buildLevel(ph){
+  const cols = ph.cols % 2===0 ? ph.cols+1 : ph.cols;
+  const rows = ph.rows % 2===0 ? ph.rows+1 : ph.rows;
+  const grid = generateMaze(cols, rows, ph.loopFactor);
+  const avoid = new Set();
+  // ponto de partida do jogador: célula com mais saídas próxima do canto superior esquerdo
+  let playerStart=[1,1], bestExits=-1;
+  for(let r=1;r<Math.min(rows-1,6);r++) for(let c=1;c<Math.min(cols-1,6);c++){
+    if(grid[r][c]==="."){
+      const ex=countExits(grid,cols,rows,r,c);
+      if(ex>bestExits){ bestExits=ex; playerStart=[r,c]; }
+    }
+  }
+  avoid.add(playerStart[0]+"-"+playerStart[1]);
+  // casa dos fantasmas: célula mais próxima do centro
+  const centerR=Math.floor(rows/2), centerC=Math.floor(cols/2);
+  const home = nearestFloor(grid, cols, rows, centerR, centerC, avoid) || playerStart;
+  avoid.add(home[0]+"-"+home[1]);
+  // pellets (remédios) perto dos 4 cantos
+  const corners=[[1,1],[1,cols-2],[rows-2,1],[rows-2,cols-2]];
+  const pellets=[];
+  corners.forEach(([tr,tc])=>{
+    const f=nearestFloor(grid, cols, rows, tr, tc, avoid);
+    if(f){ pellets.push(f); avoid.add(f[0]+"-"+f[1]); }
+  });
+  pellets.forEach(([r,c])=>{ grid[r][c]="o"; });
+  let fruitCount=0;
+  for(let r=1;r<rows-1;r++) for(let c=1;c<cols-1;c++){
+    if(grid[r][c]==="." ) fruitCount++;
+  }
+  return {cols, rows, grid, playerStart, home, fruitCount, totalCollect:fruitCount+pellets.length};
+}
+
+function renderMazeScreen(idx, ghostIds){
+  const ph=PHASES[idx];
+  M = buildLevel(ph);
+  const cellPx = Math.floor(Math.min(480/M.cols, 480/(M.rows*0.78)));
+  M.cellPx = Math.max(20, Math.min(cellPx, 44));
+  state.screen="maze";
+  app.innerHTML="";
+  app.appendChild(el(`<div class="screen">
+    <div class="hud">
+      <span class="phase-tag" style="color:${ph.cor}">${ph.nome} · F${idx+1}/10</span>
+      <span class="score" id="hudScore">PONTOS: ${state.score}</span>
+      <span class="lives" id="hudLives">${"❤️".repeat(state.lives)}</span>
+    </div>
+    <div class="hud" style="justify-content:space-between;">
+      <span class="fruitcount" id="hudFruit">🍊 restantes: ${M.totalCollect}</span>
+      <button class="btn small secondary" id="pauseBtn" style="width:auto;">⏸</button>
+    </div>
+    <div class="power-bar-wrap"><div class="power-bar" id="powerBar"></div></div>
+    <div class="maze-wrap" id="mazeWrap" tabindex="0"><canvas id="mazeCanvas" width="${M.cellPx*M.cols}" height="${M.cellPx*M.rows}"></canvas></div>
+    <div class="hint-desktop">Use WASD ou as setas para mover o Oxigênio 🔵 (clique no labirinto para garantir o foco do teclado)</div>
+    <div class="dpad" id="dpad">
+      <button class="up">▲</button><div></div><div></div>
+      <button class="left">◀</button><div class="center"></div><button class="right">▶</button>
+      <button class="down">▼</button>
+    </div>
+  </div>`));
+  M.canvas=document.getElementById("mazeCanvas");
+  M.ctx=M.canvas.getContext("2d");
+  document.getElementById("pauseBtn").onclick=openPause;
+  wireDpad();
+  attachKeyListeners();
+  // garante que o teclado seja capturado pela página (não por outro elemento com foco)
+  const wrap=document.getElementById("mazeWrap");
+  const grabFocus=()=>{ try{ wrap.focus({preventScroll:true}); }catch(e){} };
+  grabFocus();
+  wrap.addEventListener("click", grabFocus);
+  wrap.addEventListener("touchstart", grabFocus, {passive:true});
+  initEntities(ghostIds);
+  particles=[];
+  startLoop();
+  startMusic();
+}
+
+function wireDpad(){
+  const dpad=document.getElementById("dpad");
+  const bind=(sel,dir)=>{
+    const b=dpad.querySelector(sel);
+    const set=(e)=>{ if(e.cancelable) e.preventDefault(); P.nextDir=dir; };
+    b.addEventListener("touchstart", set, {passive:false});
+    b.addEventListener("mousedown", set);
+  };
+  bind(".up","up"); bind(".down","down"); bind(".left","left"); bind(".right","right");
+}
+function keyHandler(e){
+  if(state.screen!=="maze") return;
+  const k=(e.key||"").toLowerCase();
+  const code=e.code||"";
+  const isUp = k==="w"||k==="arrowup"||code==="KeyW"||code==="ArrowUp";
+  const isDown = k==="s"||k==="arrowdown"||code==="KeyS"||code==="ArrowDown";
+  const isLeft = k==="a"||k==="arrowleft"||code==="KeyA"||code==="ArrowLeft";
+  const isRight = k==="d"||k==="arrowright"||code==="KeyD"||code==="ArrowRight";
+  if(isUp||isDown||isLeft||isRight){ if(e.cancelable) e.preventDefault(); }
+  if(isUp) P.nextDir="up";
+  else if(isDown) P.nextDir="down";
+  else if(isLeft) P.nextDir="left";
+  else if(isRight) P.nextDir="right";
+  else if(k==="escape") openPause();
+}
+function attachKeyListeners(){
+  removeKeyListeners();
+  window.addEventListener("keydown", keyHandler, true);
+  document.addEventListener("keydown", keyHandler, true);
+}
+function removeKeyListeners(){
+  window.removeEventListener("keydown", keyHandler, true);
+  document.removeEventListener("keydown", keyHandler, true);
+}
+
+/* ---------------- entidades ---------------- */
+let P, G; // player, ghosts
+
+function isOpen(col,row){
+  if(row<0||row>=M.rows||col<0||col>=M.cols) return false;
+  return M.grid[row][col] !== "#";
+}
+function initEntities(ghostIds){
+  const cp=M.cellPx;
+  P = {
+    col:M.playerStart[0]===undefined?1:M.playerStart[0], row:M.playerStart[1], // placeholder, fixed below
+  };
+  P.row = M.playerStart[0]; P.col = M.playerStart[1];
+  P.x = P.col*cp; P.y = P.row*cp; P.dir=null; P.nextDir=null;
+  P.powerUntil=0; P.catchImmuneUntil=performance.now()+800; P.mouth=0;
+  const ph=PHASES[state.phaseIdx];
+  const speedBase = cp*3.1; // px/s do jogador
+  P.speed = speedBase;
+  G = ghostIds.map((id,i)=>{
+    const d=DISEASES.find(x=>x.id===id);
+    return {
+      diseaseId:id, cor:d.cor, nome:d.nome,
+      row:M.home[0], col:M.home[1],
+      x:M.home[1]*cp, y:M.home[0]*cp,
+      dir: null,
+      state:"home", releaseAt:performance.now()+900+i*1400,
+      speed: speedBase*ph.ghostSpeed,
+      deadUntil:0, wobble:Math.random()*10,
+    };
+  });
+}
+
+/* ---------------- loop principal ---------------- */
+let rafId=null, lastT=0, running=false;
+let particles=[];
+let flashColor=null, flashUntil=0, flashStart=0;
+function startLoop(){
+  running=true; lastT=performance.now();
+  rafId=requestAnimationFrame(loop);
+}
+function stopLoop(){
+  running=false;
+  if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
+  removeKeyListeners();
+}
+function loop(t){
+  if(!running) return;
+  const dt=Math.min(0.05,(t-lastT)/1000); lastT=t;
+  update(dt,t);
+  updateParticles(dt);
+  draw();
+  rafId=requestAnimationFrame(loop);
+}
+function spawnParticles(gx,gy,color,count){
+  for(let i=0;i<count;i++){
+    const a=Math.random()*Math.PI*2, speed=50+Math.random()*70;
+    particles.push({x:gx,y:gy,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:1,color});
+  }
+}
+function updateParticles(dt){
+  particles.forEach(p=>{ p.x+=p.vx*dt; p.y+=p.vy*dt; p.vx*=0.92; p.vy*=0.92; p.life-=dt*1.8; });
+  if(particles.length) particles=particles.filter(p=>p.life>0);
+}
+function drawParticles(ctx){
+  particles.forEach(p=>{
+    ctx.save(); ctx.globalAlpha=Math.max(0,p.life);
+    ctx.fillStyle=p.color; ctx.beginPath(); ctx.arc(p.x,p.y,3,0,7); ctx.fill();
+    ctx.restore();
+  });
+}
+function triggerFlash(color, durMs){
+  flashColor=color; flashStart=performance.now(); flashUntil=flashStart+durMs;
+}
+function drawFlash(ctx,w,h){
+  const now=performance.now();
+  if(!flashColor || now>flashUntil) return;
+  const remain=(flashUntil-now)/(flashUntil-flashStart);
+  ctx.save(); ctx.globalAlpha=Math.max(0,remain)*0.35;
+  ctx.fillStyle=flashColor; ctx.fillRect(0,0,w,h);
+  ctx.restore();
+}
+
+function tileConsume(row,col){
+  const cell=M.grid[row][col];
+  const gx=col*M.cellPx+M.cellPx/2, gy=row*M.cellPx+M.cellPx/2;
+  if(cell==="."){
+    const idx=(row*13+col*7)%FRUIT_EMOJIS.length;
+    M.grid[row][col]=" "; state.score+=POINTS.fruit; M.totalCollect--; playCollectSound();
+    spawnParticles(gx,gy,FRUIT_GLOW[idx],5);
+  } else if(cell==="o"){
+    M.grid[row][col]=" "; state.score+=POINTS.pellet; M.totalCollect--; state.pelletsThisPhase++;
+    P.powerUntil=performance.now()+5000; P.warnPlayed=false; playSound("pellet");
+    spawnParticles(gx,gy,"#ffcb4d",12);
+    triggerFlash("#ffcb4d",260);
+    G.forEach(g=>{ if(g.state==="chase") g.state="scared"; });
+    if(state.pelletsThisPhase>=4){ state.secretFound=true; save.secretFound=true; persistSave(); checkAchievements(); }
+  }
+  updateHud();
+}
+
+function moveEntity(ent, dt){
+  const cp=M.cellPx;
+  // inversão instantânea: se a nova direção pedida é o oposto da atual, vira na hora (como no Pac-Man clássico)
+  if(ent===P && ent.dir && ent.nextDir && ent.nextDir===REVERSE_DIR[ent.dir] && canGo(ent.col,ent.row,ent.nextDir)){
+    ent.dir = ent.nextDir;
+  }
+  if(!ent.dir){
+    const want = (ent===P) ? ent.nextDir : chooseGhostDir(ent);
+    if(want && canGo(ent.col,ent.row,want)){ ent.dir=want; }
+    else return;
+  }
+  const [dx,dy]=DIRS[ent.dir];
+  ent.x += dx*ent.speed*dt; ent.y += dy*ent.speed*dt;
+  const nCol=Math.round(ent.x/cp), nRow=Math.round(ent.y/cp);
+  if(nCol!==ent.col || nRow!==ent.row){
+    // acabou de cruzar para uma nova célula: consome item e decide a próxima direção
+    ent.col=nCol; ent.row=nRow;
+    if(ent===P) tileConsume(nRow,nCol);
+    const want = (ent===P) ? ent.nextDir : chooseGhostDir(ent);
+    if(want && canGo(nCol,nRow,want)){ ent.dir=want; }
+    else if(!canGo(nCol,nRow,ent.dir)){
+      if(ent===P){
+        ent.dir=null; // o jogador só se move na direção que está segurando; sem caminho ali, ele para
+      } else {
+        const opts=["up","down","left","right"].filter(d=>canGo(nCol,nRow,d));
+        ent.dir = opts.length? pick(opts) : null;
+      }
+    }
+    // realinha o eixo perpendicular ao centro exato da célula (evita desvio acumulado)
+    if(dx!==0){ ent.y = nRow*cp; } else { ent.x = nCol*cp; }
+  } else if(ent===P && P.nextDir && P.nextDir!==ent.dir && canGo(ent.col,ent.row,P.nextDir)){
+    // virada antecipada do jogador: responde assim que estiver perto o bastante do centro da célula atual,
+    // em vez de esperar cruzar totalmente para a próxima (deixa o controle bem mais ágil)
+    const axisPos = (dx!==0) ? ent.x/cp : ent.y/cp;
+    const centerVal = (dx!==0) ? ent.col : ent.row;
+    if(Math.abs(axisPos-centerVal) < 0.32){
+      ent.dir = P.nextDir;
+      // realinha os DOIS eixos ao centro exato da célula (sem isso, o eixo que estava em movimento
+      // ficava "torto"/fora do centro ao virar, dando a impressão de um pulo/glitch)
+      ent.x = ent.col*cp; ent.y = ent.row*cp;
+    }
+  }
+}
+function canGo(col,row,dir){
+  const [dx,dy]=DIRS[dir]; return isOpen(col+dx,row+dy);
+}
+const REVERSE_DIR = {up:"down", down:"up", left:"right", right:"left"};
+
+function chooseGhostDir(g){
+  const allOpts=["up","down","left","right"].filter(d=>canGo(g.col,g.row,d));
+  if(allOpts.length===0) return null;
+  const reverse = g.dir ? REVERSE_DIR[g.dir] : null;
+  let opts = allOpts.filter(d=>d!==reverse);
+  if(opts.length===0) opts = allOpts; // beco sem saída: precisa voltar
+  const ph=PHASES[state.phaseIdx];
+  const scared = g.state==="scared";
+  const doChase = scared ? true : (Math.random()<ph.chaseProb);
+  if(!doChase) return pick(opts);
+  const targetCol = scared ? (2*g.col-P.col) : P.col;
+  const targetRow = scared ? (2*g.row-P.row) : P.row;
+  let best=opts[0], bestDist = scared? -Infinity : Infinity;
+  opts.forEach(d=>{
+    const [dx,dy]=DIRS[d];
+    const nc=g.col+dx, nr=g.row+dy;
+    const dist=Math.abs(nc-targetCol)+Math.abs(nr-targetRow);
+    if(scared){ if(dist>bestDist){ bestDist=dist; best=d; } }
+    else{ if(dist<bestDist){ bestDist=dist; best=d; } }
+  });
+  return best;
+}
+
+function update(dt,t){
+  const now=t;
+  // libera fantasmas da casa
+  G.forEach(g=>{
+    if(g.state==="home" && now>=g.releaseAt){ g.state="chase"; g.spawnTime=now; }
+    if(g.state==="dead" && now>=g.deadUntil){ g.state="chase"; g.row=M.home[0]; g.col=M.home[1]; g.x=g.col*M.cellPx; g.y=g.row*M.cellPx; g.dir=null; g.spawnTime=now; }
+  });
+  // expira modo poder
+  if(P.powerUntil>0 && now>P.powerUntil){
+    P.powerUntil=0;
+    G.forEach(g=>{ if(g.state==="scared") g.state="chase"; });
+  }
+  if(P.powerUntil>now && (P.powerUntil-now)<1500 && !P.warnPlayed){ P.warnPlayed=true; playSound("warn"); }
+  updatePowerBar(now);
+  moveEntity(P,dt);
+  G.forEach(g=>{ if(g.state!=="home" && g.state!=="dead") moveEntity(g,dt); });
+  // colisões
+  const cp=M.cellPx, threshold=cp*0.55;
+  G.forEach(g=>{
+    if(g.state==="home"||g.state==="dead") return;
+    const d=Math.hypot(P.x-g.x, P.y-g.y);
+    if(d<threshold){
+      if(P.powerUntil>now){
+        if(g.state!=="eaten_flag"){
+          g.state="dead"; g.deadUntil=now+3500;
+          state.score+=POINTS.ghost; state.ghostsEatenTotal++;
+          save.ghostsEatenTotal=state.ghostsEatenTotal; persistSave();
+          playSound("eatghost"); checkAchievements(); updateHud();
+          spawnParticles(g.x+cp/2, g.y+cp/2, g.cor, 14);
+          triggerFlash("#4fe3ff",200);
+        }
+      } else if(now>P.catchImmuneUntil){
+        triggerFlash("#ff5d7a",280);
+        triggerCatchBattle(g);
+      }
+    }
+  });
+  // fase completa
+  if(M.totalCollect<=0){ phaseClear(); }
+}
+
+function updatePowerBar(now){
+  const bar=document.getElementById("powerBar");
+  if(!bar) return;
+  if(P.powerUntil>now){
+    const remaining=(P.powerUntil-now)/5000;
+    bar.style.width=Math.max(0,remaining*100)+"%";
+  } else { bar.style.width="0%"; }
+}
+function updateHud(){
+  const s=document.getElementById("hudScore"), l=document.getElementById("hudLives"), f=document.getElementById("hudFruit");
+  if(s) s.textContent="PONTOS: "+state.score;
+  if(l) l.textContent="❤️".repeat(Math.max(state.lives,0));
+  if(f) f.textContent="🍊 restantes: "+Math.max(0,M.totalCollect);
+}
+
+/* ---------------- desenho ---------------- */
+const FRUIT_GLOW = ["#ff9a1f","#b455ff","#ff2f5f","#fff01f","#4dff2f"];
+function draw(){
+  const ctx=M.ctx, cp=M.cellPx;
+  ctx.clearRect(0,0,M.canvas.width,M.canvas.height);
+  ctx.fillStyle="#050818"; ctx.fillRect(0,0,M.canvas.width,M.canvas.height);
+  const ph=PHASES[state.phaseIdx];
+  for(let r=0;r<M.rows;r++) for(let c=0;c<M.cols;c++){
+    const cell=M.grid[r][c], x=c*cp, y=r*cp;
+    if(cell==="#"){
+      ctx.fillStyle=ph.cor+"33";
+      ctx.strokeStyle=ph.cor+"aa"; ctx.lineWidth=Math.max(1,cp*0.06);
+      ctx.strokeRect(x+2,y+2,cp-4,cp-4);
+    } else if(cell==="."){
+      const idx=(r*13+c*7)%FRUIT_EMOJIS.length;
+      const glowColor=FRUIT_GLOW[idx];
+      const pulse=0.9+Math.sin(performance.now()/260+idx)*0.12;
+      const gx=x+cp/2, gy=y+cp/2;
+      const grad=ctx.createRadialGradient(gx,gy,0,gx,gy,cp*0.52*pulse);
+      grad.addColorStop(0, glowColor+"dd");
+      grad.addColorStop(0.55, glowColor+"55");
+      grad.addColorStop(1, glowColor+"00");
+      ctx.fillStyle=grad;
+      ctx.beginPath(); ctx.arc(gx,gy,cp*0.52*pulse,0,7); ctx.fill();
+      ctx.font=(cp*0.48*pulse)+"px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+      ctx.fillText(FRUIT_EMOJIS[idx], gx, gy+1);
+    } else if(cell==="o"){
+      const pulse=0.85+Math.sin(performance.now()/180)*0.2;
+      const gx=x+cp/2, gy=y+cp/2;
+      const grad=ctx.createRadialGradient(gx,gy,0,gx,gy,cp*0.64*pulse);
+      grad.addColorStop(0, "#fff6d0ee");
+      grad.addColorStop(0.5, "#ffcb4d99");
+      grad.addColorStop(1, "#ffcb4d00");
+      ctx.fillStyle=grad;
+      ctx.beginPath(); ctx.arc(gx,gy,cp*0.64*pulse,0,7); ctx.fill();
+      ctx.font=(cp*0.6*pulse)+"px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+      ctx.fillText("💊", gx, gy+1);
+    }
+  }
+  drawPlayer(ctx,cp);
+  G.forEach(g=>drawGhost(ctx,g,cp));
+  drawParticles(ctx);
+  drawFlash(ctx,M.canvas.width,M.canvas.height);
+}
+function drawPlayer(ctx,cp){
+  const wobble=Math.sin(performance.now()/240)*0.06;
+  const moving = !!P.dir;
+  const bounce = moving ? 1+Math.abs(Math.sin(performance.now()/110))*0.1 : 1;
+  const rAtom=cp*0.20*bounce, off=cp*0.19;
+  const a1x=P.x+cp/2-off*Math.cos(wobble), a1y=P.y+cp/2-off*0.4-off*Math.sin(wobble);
+  const a2x=P.x+cp/2+off*Math.cos(wobble), a2y=P.y+cp/2+off*0.4+off*Math.sin(wobble);
+  const powered=P.powerUntil>performance.now();
+  ctx.save();
+  ctx.shadowColor= powered? "#ffcb4d" : "#4fe3ff"; ctx.shadowBlur= powered? 22:16;
+  ctx.strokeStyle="#0b2a3a"; ctx.lineWidth=Math.max(2,cp*0.06);
+  ctx.beginPath(); ctx.moveTo(a1x,a1y); ctx.lineTo(a2x,a2y); ctx.stroke();
+  [[a1x,a1y],[a2x,a2y]].forEach(([ax,ay])=>{
+    const grad=ctx.createRadialGradient(ax-rAtom*0.3,ay-rAtom*0.3,1,ax,ay,rAtom);
+    if(powered){ grad.addColorStop(0,"#fff6d9"); grad.addColorStop(1,"#ffcb4d"); }
+    else{ grad.addColorStop(0,"#eafcff"); grad.addColorStop(1,"#4fe3ff"); }
+    ctx.beginPath(); ctx.arc(ax,ay,rAtom,0,7); ctx.fillStyle=grad; ctx.fill();
+    ctx.lineWidth=1.2; ctx.strokeStyle="#0f4a5c"; ctx.stroke();
+  });
+  ctx.restore();
+}
+function drawGhost(ctx,g,cp){
+  if(g.state==="home"||g.state==="dead") return;
+  const cx=g.x+cp/2, cy=g.y+cp/2, r=cp*0.28;
+  const scared = g.state==="scared";
+  const flashing = scared && (P.powerUntil-performance.now())<1200 && Math.floor(performance.now()/150)%2===0;
+  const color = scared ? (flashing? "#ffffff" : "#8fb8ff") : g.cor;
+  const spawnAlpha = g.spawnTime ? Math.min(1,(performance.now()-g.spawnTime)/450) : 1;
+  ctx.save();
+  ctx.globalAlpha=spawnAlpha;
+  // espículos ao redor do corpo (visual de vírus) — sem sombra, é bem mais barato pro navegador
+  const spikes=9;
+  const rot=performance.now()/2600;
+  ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=Math.max(1.4,cp*0.045);
+  for(let i=0;i<spikes;i++){
+    const a=(i/spikes)*Math.PI*2 + rot;
+    const x1=cx+Math.cos(a)*r*0.95, y1=cy+Math.sin(a)*r*0.95;
+    const x2=cx+Math.cos(a)*r*1.38, y2=cy+Math.sin(a)*r*1.38;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x2,y2,cp*0.065,0,7); ctx.fill();
+  }
+  // corpo — único elemento com brilho (bem mais barato que aplicar em cada espículo)
+  ctx.shadowColor=color; ctx.shadowBlur=10;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,7);
+  ctx.fillStyle=color; ctx.fill();
+  ctx.shadowBlur=0;
+  // manchas internas (textura de vírus)
+  ctx.fillStyle= scared? "rgba(255,255,255,.25)" : "rgba(0,0,0,.15)";
+  [[-0.3,-0.25,0.16],[0.28,0.05,0.13],[-0.05,0.32,0.12]].forEach(([dxr,dyr,rr])=>{
+    ctx.beginPath(); ctx.arc(cx+dxr*r, cy+dyr*r, rr*r, 0, 7); ctx.fill();
+  });
+  // olhos
+  const dirVec = DIRS[g.dir]||[0,0];
+  const eyeOffX=dirVec[0]*r*0.14, eyeOffY=dirVec[1]*r*0.14;
+  [-1,1].forEach(side=>{
+    const ex=cx+side*r*0.33+eyeOffX, ey=cy-r*0.08+eyeOffY;
+    ctx.beginPath(); ctx.ellipse(ex,ey,r*0.17,r*0.21,0,0,7); ctx.fillStyle="#fff"; ctx.fill();
+    if(!scared){
+      ctx.beginPath(); ctx.arc(ex+dirVec[0]*r*0.06, ey+dirVec[1]*r*0.06, r*0.09,0,7); ctx.fillStyle="#1a1030"; ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.arc(ex, ey, r*0.08,0,7); ctx.fillStyle="#1a3a6b"; ctx.fill();
+    }
+  });
+  ctx.restore();
+}
+
+/* ---------------- pausa ---------------- */
+function openPause(){
+  playSound("click"); running=false; stopMusic();
+  const ov=el(`<div class="overlay"><div class="card">
+    <h2>⏸ Pausado</h2>
+    <div class="menu-list" style="margin-top:10px;">
+      <button class="btn" id="pResume">Continuar</button>
+      <button class="btn secondary" id="pRestart">Reiniciar Fase</button>
+      <button class="btn secondary" id="pSound">🔊 Som: ${save.soundOn?"Ligado":"Desligado"}</button>
+      <button class="btn secondary" id="pMusic">🎵 Música: ${save.musicOn?"Ligada":"Desligada"}</button>
+      <button class="btn danger" id="pMenu">Voltar ao Menu</button>
+    </div>
+  </div></div>`);
+  document.body.appendChild(ov);
+  document.getElementById("pResume").onclick=()=>{ ov.remove(); lastT=performance.now(); running=true; rafId=requestAnimationFrame(loop); startMusic(); };
+  document.getElementById("pRestart").onclick=()=>{ ov.remove(); renderPhaseIntro(state.phaseIdx); };
+  document.getElementById("pSound").onclick=(e)=>{ save.soundOn=!save.soundOn; persistSave(); e.target.textContent="🔊 Som: "+(save.soundOn?"Ligado":"Desligado"); };
+  document.getElementById("pMusic").onclick=(e)=>{ save.musicOn=!save.musicOn; persistSave(); e.target.textContent="🎵 Música: "+(save.musicOn?"Ligada":"Desligada"); if(!save.musicOn) stopMusic(); };
+  document.getElementById("pMenu").onclick=()=>{ ov.remove(); stopLoop(); stopMusic(); renderMenu(); };
+}
+
+/* ============================================================
+   BATALHA AO SER PEGO PELO FANTASMA
+   ============================================================ */
+function pickQuestion(){
+  const avail=QUESTIONS.filter(q=>!state.usedQuestions.has(q.pergunta));
+  const pool=avail.length?avail:QUESTIONS;
+  const q=pick(pool); state.usedQuestions.add(q.pergunta); return q;
+}
+function triggerCatchBattle(ghost){
+  running=false; stopMusic();
+  const d=DISEASES.find(x=>x.id===ghost.diseaseId);
+  const maxHp = 2 + Math.min(2, Math.floor(state.phaseIdx/4)); // 2 a 4, cresce com a fase
+  ghost.battleHp = maxHp; ghost.battleMaxHp = maxHp;
+  ghost.battleLifeLost = false;
+  renderBattleFrame(ghost, d);
+}
+function renderBattleFrame(ghost, d){
+  const ov=el(`<div class="overlay"><div class="quiz-card" id="battleOv">
+    <div class="battle-banner">
+      <div class="gicon" style="background:${d.cor};">🦠</div>
+      <div class="txt"><b>${d.nome}</b> te alcançou! Vença a batalha para continuar.</div>
+    </div>
+    <div class="vs-row">
+      <div><div class="player-emoji" id="pEmoji">🔵</div><div style="font-size:11px;color:var(--dim);">Oxigênio</div>
+        <div class="hpbar-wrap"><div class="hpbar player" id="pHp" style="width:${Math.max(0,state.lives/3*100)}%"></div></div>
+      </div>
+      <div style="font-size:20px;">⚔</div>
+      <div><div class="boss-emoji" id="bEmoji" style="background:radial-gradient(circle, ${d.cor}33, transparent 70%); box-shadow:0 0 20px ${d.cor}55;">🦠</div><div style="font-size:11px;color:var(--dim);">${d.nome}</div>
+        <div class="hpbar-wrap"><div class="hpbar" id="bHp" style="width:100%"></div></div>
+      </div>
+    </div>
+    <div id="battleQuizSlot"></div>
+  </div></div>`);
+  document.body.appendChild(ov);
+  renderBattleQuestion(ghost, d, ov);
+}
+function renderBattleQuestion(ghost, d, ov){
+  const slot=ov.querySelector("#battleQuizSlot");
+  const q=pickQuestion();
+  const isTF=q.tipo==="tf";
+  const opts=isTF?["Verdadeiro","Falso"]:q.alternativas;
+  const letters=["A","B","C","D"];
+  const optHtml=opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="letter">${letters[i]}</span>${o}</button>`).join("");
+  slot.innerHTML=`
+    <div class="quiz-cat">${q.categoria} · ${q.dificuldade}</div>
+    <div class="quiz-q">${q.pergunta}</div>
+    <div class="opt-list">${optHtml}</div>
+    <div id="qFeedback"></div>`;
+  slot.querySelectorAll(".opt").forEach(btn=>{
+    btn.onclick=()=>{
+      const i=+btn.dataset.i;
+      const correctIdx = isTF ? (q.resposta===true?0:1) : q.resposta;
+      const isCorrect = i===correctIdx;
+      slot.querySelectorAll(".opt").forEach(b=>b.disabled=true);
+      btn.classList.add(isCorrect?"correct":"wrong");
+      if(!isCorrect){ const cb=[...slot.querySelectorAll(".opt")][correctIdx]; if(cb) cb.classList.add("correct"); }
+      resolveBattleTurn(isCorrect, q, ghost, d, ov);
+    };
+  });
+}
+function resolveBattleTurn(isCorrect, q, ghost, d, ov){
+  const fb=ov.querySelector("#qFeedback");
+  const pE=ov.querySelector("#pEmoji"), bE=ov.querySelector("#bEmoji");
+  const pHp=ov.querySelector("#pHp"), bHp=ov.querySelector("#bHp");
+  if(isCorrect){
+    playSound("eatghost");
+    state.score+=POINTS.battleWin; state.correctCount++; state.comboQuiz++;
+    if(q.categoria==="Alvéolos"||q.categoria==="Trocas gasosas") state.alveoloCertas=(state.alveoloCertas||0)+1;
+    ghost.battleHp--;
+    if(pE) pE.classList.add("attack");
+    if(bE) bE.classList.add("shake");
+    if(bHp) bHp.style.width=Math.max(0,(ghost.battleHp/ghost.battleMaxHp*100))+"%";
+    fb.innerHTML=`<div class="feedback correct">✅ Ataque certeiro! ${q.explicacao}</div>`;
+  } else {
+    playSound("damage");
+    state.score=Math.max(0,state.score+POINTS.wrong);
+    state.wrongCount++; state.comboQuiz=0; state.lives--; state.livesLostThisPhase++; ghost.battleLifeLost=true;
+    if(pE) pE.classList.add("hit");
+    if(pHp) pHp.style.width=Math.max(0,(state.lives/3*100))+"%";
+    fb.innerHTML=`<div class="feedback wrong">❌ ${d.nome} atacou! Você perdeu uma vida. ${q.explicacao}</div>`;
+  }
+  save.correctCount=state.correctCount; save.wrongCount=state.wrongCount; persistSave();
+  checkAchievements(); updateHud();
+  setTimeout(()=>{
+    if(pE) pE.classList.remove("hit","attack");
+    if(bE) bE.classList.remove("shake");
+    if(state.lives<=0){ ov.remove(); stopLoop(); return renderGameOver(); }
+    if(ghost.battleHp<=0){ return winBattle(ghost, d, ov); }
+    renderBattleQuestion(ghost, d, ov);
+  }, 4500);
+}
+function winBattle(ghost, d, ov){
+  playSound("victory");
+  state.score+=POINTS.ghost; state.ghostsEatenTotal++;
+  save.ghostsEatenTotal=state.ghostsEatenTotal; persistSave();
+  checkAchievements(); updateHud();
+  const slot=ov.querySelector("#battleQuizSlot");
+  slot.innerHTML=`<div class="feedback correct" style="text-align:center; font-size:15px;">🎉 Você venceu ${d.nome}! Ela recua por enquanto.</div>`;
+  setTimeout(()=>{
+    ov.remove();
+    ghost.state="dead"; ghost.deadUntil=performance.now()+3000;
+    if(ghost.battleLifeLost){
+      P.row=M.playerStart[0]; P.col=M.playerStart[1]; P.x=P.col*M.cellPx; P.y=P.row*M.cellPx; P.dir=null; P.nextDir=null;
+    }
+    P.catchImmuneUntil=performance.now()+1200;
+    lastT=performance.now(); running=true; rafId=requestAnimationFrame(loop);
+    startMusic();
+  }, 1500);
+}
+
+/* ============================================================
+   FASE COMPLETA / GAME OVER / RESULTADOS
+   ============================================================ */
+function phaseClear(){
+  stopLoop(); stopMusic(); playSound("levelclear");
+  state.score+=POINTS.phaseClear; state.phasesCompleted++;
+  state.perfectPhase = state.livesLostThisPhase===0;
+  save.unlockedPhase=Math.max(save.unlockedPhase, state.phaseIdx+1); persistSave();
+  checkAchievements();
+  const nextIdx=state.phaseIdx+1;
+  state.screen="clear"; app.innerHTML="";
+  const ph=PHASES[state.phaseIdx];
+  app.appendChild(el(`<div class="screen">
+    <div class="intro-card" style="box-shadow:0 0 30px ${ph.cor}44, inset 0 0 0 1px ${ph.cor}55; position:relative; overflow:hidden;">
+      ${confettiHtml(16)}
+      <div style="position:relative; z-index:1;">
+        <div class="emoji" style="font-size:44px;">🎉</div>
+        <h2 style="color:${ph.cor}">FASE CONCLUÍDA!</h2>
+        <p>Você coletou todas as frutas e remédios de <b>${ph.nome}</b>.</p>
+        <div class="fact-box">Pontuação total: ${state.score}</div>
+      </div>
+    </div>
+    <button class="btn" id="nextPhaseBtn">${nextIdx<PHASES.length? "PRÓXIMA FASE":"VER RESULTADO FINAL"}</button>
+  </div>`));
+  document.getElementById("nextPhaseBtn").onclick=()=>renderPhaseIntro(nextIdx);
+}
+function confettiHtml(count){
+  const colors=["#4fe3ff","#9b5cff","#ffcb4d","#3ee08a","#ff5d7a"];
+  let out="";
+  for(let i=0;i<count;i++){
+    const left=Math.random()*100;
+    const delay=(Math.random()*0.5).toFixed(2);
+    const dur=(1.4+Math.random()*1).toFixed(2);
+    const color=colors[i%colors.length];
+    const size=6+Math.random()*5;
+    out+=`<span class="confetti-piece" style="left:${left}%; background:${color}; width:${size}px; height:${size*0.4}px; animation-delay:${delay}s; animation-duration:${dur}s;"></span>`;
+  }
+  return `<div class="confetti-wrap">${out}</div>`;
+}
+function renderGameOver(){
+  stopLoop(); stopMusic(); playSound("gameover"); state.screen="over"; app.innerHTML="";
+  app.appendChild(el(`<div class="screen">
+    <div class="intro-card">
+      <div class="emoji">💨</div>
+      <h2 style="color:var(--bad)">O Oxigênio foi derrotado!</h2>
+      <p>Não desanime — errar faz parte do aprendizado. Pontuação nesta tentativa: <b style="color:var(--gold)">${state.score}</b></p>
+    </div>
+    <button class="btn" id="retryPhase">TENTAR NOVAMENTE</button>
+    <button class="btn secondary" id="toMenu">VOLTAR AO MENU</button>
+  </div>`));
+  document.getElementById("retryPhase").onclick=()=>{ state.lives=3; renderPhaseIntro(state.phaseIdx); };
+  document.getElementById("toMenu").onclick=renderMenu;
+}
+function renderResults(){
+  stopLoop(); stopMusic(); state.finished=true;
+  const total=state.correctCount+state.wrongCount;
+  const acc=total?Math.round(state.correctCount/total*100):100;
+  state.accuracy=acc;
+  save.bestScore=Math.max(save.bestScore, state.score); persistSave();
+  const elapsedMs = state.runStartMs ? (Date.now()-state.runStartMs) : null;
+  if(save.username){ upsertLeaderboard(save.username, state.score, state.correctCount, elapsedMs); }
+  checkAchievements();
+  let grade,gradeColor,rec;
+  if(acc>=90){ grade="🥇 EXCELENTE"; gradeColor="var(--gold)"; rec="Você teve um desempenho excelente! Domina bem o conteúdo sobre o sistema respiratório."; }
+  else if(acc>=70){ grade="🥈 MUITO BOM"; gradeColor="var(--cyan)"; rec="Muito bom! Revise um pouco mais sobre as doenças respiratórias para ficar ainda melhor."; }
+  else if(acc>=50){ grade="🥉 BOM"; gradeColor="var(--purple)"; rec="Bom trabalho! Vale a pena revisar a área 'Aprender' para reforçar o conteúdo."; }
+  else { grade="📚 PRECISA ESTUDAR MAIS"; gradeColor="var(--bad)"; rec="Continue praticando! Visite a área 'Aprender' e tente novamente."; }
+  state.screen="results"; app.innerHTML="";
+  app.appendChild(el(`<div class="screen">
+    <div class="result-hero">
+      <div style="font-size:40px;">🎉</div>
+      <h2>PARABÉNS! VOCÊ COMPLETOU A JORNADA DO OXIGÊNIO!</h2>
+      <div class="grade" style="color:${gradeColor}">${grade}</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="val">${state.score}</div><div class="lbl">Pontuação</div></div>
+      <div class="stat-box"><div class="val">${fmtTime(elapsedMs)}</div><div class="lbl">Tempo</div></div>
+      <div class="stat-box"><div class="val">${state.correctCount}/${total}</div><div class="lbl">Perguntas corretas</div></div>
+      <div class="stat-box"><div class="val">${acc}%</div><div class="lbl">Acertos</div></div>
+      <div class="stat-box"><div class="val">${state.phasesCompleted}/10</div><div class="lbl">Fases completadas</div></div>
+      <div class="stat-box"><div class="val">${state.ghostsEatenTotal}</div><div class="lbl">Fantasmas comidos</div></div>
+    </div>
+    <div class="card"><p style="color:var(--white);">${rec}</p></div>
+    <button class="btn" id="rankBtn">VER RANKING</button>
+    <button class="btn" id="reviewBtn">REVISAR CONTEÚDO</button>
+    <button class="btn secondary" id="playAgain">JOGAR NOVAMENTE</button>
+    <button class="btn secondary" id="toMenu2">MENU PRINCIPAL</button>
+  </div>`));
+  document.getElementById("rankBtn").onclick=renderRanking;
+  document.getElementById("reviewBtn").onclick=renderLearn;
+  document.getElementById("playAgain").onclick=()=>{ save.unlockedPhase=0; persistSave(); resetRun(); renderPhaseIntro(0); };
+  document.getElementById("toMenu2").onclick=renderMenu;
+}
+
+/* ============================================================
+   INÍCIO
+   ============================================================ */
+renderMenu();
+</script>
+</body>
+</html>
